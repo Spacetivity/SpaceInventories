@@ -27,9 +27,14 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "java")
 
+    val exposedVersion: String by project
+
     dependencies {
         compileOnly("com.google.code.gson:gson:2.10.1")
         compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
+        implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     }
 
     tasks.test {
