@@ -8,7 +8,7 @@ class MessageRepository(plugin: SpaceSurvivalPlugin) {
 
     fun cacheMessage(message: Message) = cachedMessages.putIfAbsent(message.key, message)
     fun removeCachedMessage(key: String) = cachedMessages.remove(key)
-    fun getCachedMessage(key: String): Message = cachedMessages[key]!!
+    fun getCachedMessage(key: String): Message? = cachedMessages[key]
     fun getCachedMessages(): MutableCollection<Message> = cachedMessages.values
 
 }

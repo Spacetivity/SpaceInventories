@@ -25,7 +25,6 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
-    apply(plugin = "java")
 
     val exposedVersion: String by project
 
