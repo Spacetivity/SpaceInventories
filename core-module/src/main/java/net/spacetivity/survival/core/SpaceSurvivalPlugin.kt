@@ -12,10 +12,7 @@ import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.listener.TestListener
 import net.spacetivity.survival.core.message.MessageRepository
 import org.bukkit.plugin.java.JavaPlugin
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class SpaceSurvivalPlugin : JavaPlugin() {
@@ -49,8 +46,8 @@ class SpaceSurvivalPlugin : JavaPlugin() {
     }
 
     fun registerCommand(commandExecutor: ICommandExecutor) {
-        val properties = commandManager.registerCommand(commandExecutor)
-        BukkitCommandExecutor::class.java.getDeclaredConstructor(CommandProperties::class.java, this::class.java).newInstance(properties, this)
+        BukkitCommandExecutor::class.java.getDeclaredConstructor(CommandProperties::class.java, this::class.java)
+            .newInstance(commandManager.registerCommand(commandExecutor), this)
     }
 
     fun isNumeric(toCheck: String): Boolean {

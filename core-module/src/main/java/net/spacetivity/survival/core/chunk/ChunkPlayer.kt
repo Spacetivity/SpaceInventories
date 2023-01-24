@@ -40,7 +40,7 @@ data class ChunkPlayer(
     }
 
     fun hasClaimedChunk(xCoordinate: Int, zCoordinate: Int): Boolean {
-        return chunks.any { claimedChunk: ClaimedChunk -> claimedChunk.xCoordinate == xCoordinate && claimedChunk.zCoordinate == zCoordinate }
+        return chunks.any { claimedChunk: ClaimedChunk -> claimedChunk.xCoordinate == xCoordinate && claimedChunk.zCoordinate == zCoordinate && claimedChunk.ownerId.toString() == uniqueId.toString() }
     }
 
     fun delete() {
@@ -52,6 +52,5 @@ data class ChunkPlayer(
         val ownerId: Column<String> = varchar("ownerId", 50)
         val coordinateX: Column<Int> = integer("coordinateX")
         val coordinateZ: Column<Int> = integer("coordinateZ")
-        override val primaryKey = PrimaryKey(ownerId, coordinateX, coordinateZ)
     }
 }
