@@ -18,7 +18,8 @@ data class ChunkPlayer(
 ) {
 
     fun claimChunk(chunk: Chunk): ClaimResult {
-        if (hasClaimedChunk(chunk.x, chunk.z)) return ClaimResult.FAILURE
+        if (hasClaimedChunk(chunk.x, chunk.z)) return ClaimResult.ALREADY_CLAIMED
+        if (plugin.chunkManager.isChunkClaimed(chunk)) return ClaimResult.ALREADY_CLAIMED_BY_OTHER_PLAYER
 
         chunks.add(ClaimedChunk(uniqueId, chunk.world, chunk.x, chunk.z))
 
@@ -51,6 +52,6 @@ data class ChunkPlayer(
         val ownerId: Column<String> = varchar("ownerId", 50)
         val coordinateX: Column<Int> = integer("coordinateX")
         val coordinateZ: Column<Int> = integer("coordinateZ")
-        override val primaryKey = PrimaryKey(ownerId)
+        override val primaryKey = PrimaryKey(ownerId, coordinateX, coordinateZ)
     }
 }
