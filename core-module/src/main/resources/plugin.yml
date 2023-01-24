@@ -1,0 +1,7 @@
+name: SpaceSurvival
+version: '${version}'
+main: net.spacetivity.survival.core.SpaceSurvivalPlugin
+api-version: 1.19
+authors:
+  - FallenBreak
+  - TGamings
