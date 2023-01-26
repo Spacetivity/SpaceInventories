@@ -6,14 +6,13 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.spacetivity.survival.core.chunk.ChunkManager
-import net.spacetivity.survival.core.chunk.PlayerChunkManager
-import net.spacetivity.survival.core.chunk.container.ChunkPlayer
 import net.spacetivity.survival.core.commandsystem.BukkitCommandExecutor
 import net.spacetivity.survival.core.commandsystem.CommandManager
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.listener.TestListener
 import net.spacetivity.survival.core.message.MessageRepository
+import net.spacetivity.survival.core.region.RegionManager
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -30,13 +29,13 @@ class SpaceSurvivalPlugin : JavaPlugin() {
     lateinit var commandManager: CommandManager
     lateinit var messageRepository: MessageRepository
     lateinit var chunkManager: ChunkManager
-    lateinit var playerChunkManager: PlayerChunkManager
+    lateinit var regionManager: RegionManager
 
     override fun onEnable() {
         this.commandManager = CommandManager()
         this.messageRepository = MessageRepository(this)
-        this.chunkManager = ChunkManager()
-        this.playerChunkManager = PlayerChunkManager()
+        this.chunkManager = ChunkManager(this)
+        this.regionManager = RegionManager(this)
 
         Database.connect(
             "jdbc:mariadb://37.114.42.32:3306/space_survival",
@@ -47,9 +46,10 @@ class SpaceSurvivalPlugin : JavaPlugin() {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(ChunkPlayer.ChunkStorage)
+            SchemaUtils.create(ChunkManager.ChunkStorage, RegionManager.RegionStorage)
         }
 
+        server.pluginManager.registerEvents(TestListener(this), this)
         server.pluginManager.registerEvents(TestListener(this), this)
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
@@ -57,7 +57,9 @@ class SpaceSurvivalPlugin : JavaPlugin() {
                 val chunkOwner = chunkManager.getChunkOwner(player!!.chunk)
                 val ownerDisplayName = if (chunkOwner == null) "unclaimed" else Bukkit.getOfflinePlayer(chunkOwner).name
                 val color: TextColor = if (chunkOwner == null) NamedTextColor.GREEN else NamedTextColor.RED
-                player.sendActionBar(Component.text(if (chunkOwner == null) "Chunk is available for purchase." else "Chunk is claimed by $ownerDisplayName.").color(color))
+                player.sendActionBar(Component.text(if (chunkOwner == null && regionManager.cachedClaimedRegions[player.uniqueId] == null) "Chunk is available for purchase."
+                    else if (chunkOwner == null && regionManager.cachedClaimedRegions[player.uniqueId] != null) "This is unclaimed land... Maybe some other player will settle down here!"
+                    else "Chunk is claimed by $ownerDisplayName.").color(color))
             }
         }, 0, 20)
     }
