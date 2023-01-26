@@ -1,6 +1,7 @@
 package net.spacetivity.survival.core.chunk
 
 import org.bukkit.Chunk
+import org.bukkit.Location
 import org.bukkit.World
 import java.util.*
 
@@ -22,6 +23,10 @@ data class ClaimedChunk(val ownerId: UUID, val world: World, val xCoordinate: In
 
     fun isLoaded(): Boolean {
         return bukkitChunk.isLoaded
+    }
+
+    fun mapChunkCornerToLocation(yLevel: Double): Location {
+        return Location(world, xCoordinate * 16.0, yLevel, zCoordinate * 16.0)
     }
 
 }

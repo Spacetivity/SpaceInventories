@@ -11,6 +11,9 @@ import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.listener.TestListener
 import net.spacetivity.survival.core.message.MessageRepository
+import org.bukkit.Bukkit
+import org.bukkit.Chunk
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -43,6 +46,15 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         }
 
         server.pluginManager.registerEvents(TestListener(this), this)
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
+            Bukkit.getOnlinePlayers().forEach { player: Player? ->
+
+                val chunkPlayer = playerChunkManager.getPlayer(player!!.uniqueId)!!
+                
+
+            }
+        }, 0, 20)
     }
 
     fun registerCommand(commandExecutor: ICommandExecutor) {
