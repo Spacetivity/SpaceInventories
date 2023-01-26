@@ -1,6 +1,5 @@
 package net.spacetivity.survival.core.listener
 
-import net.kyori.adventure.text.Component
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
@@ -50,19 +49,14 @@ class TestListener(private var plugin: SpaceSurvivalPlugin) : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
-        player.sendMessage(Component.text("Coordinates of all your claimed chunks:"))
-        plugin.chunkManager.getClaimedChunksByPlayer(player.uniqueId).forEach { pair ->
-            plugin.chunkManager.registerChunk(player.uniqueId, pair.first, pair.second)
-            player.sendMessage(Component.text("Chunk coords - X: ${pair.first} Z: ${pair.second}"))
-        }
-
+        plugin.chunkManager.loadClaimedChunks(player.uniqueId)
         plugin.regionManager.loadRegion(player.uniqueId)
     }
 
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
         val player = event.player
-        plugin.chunkManager.clearRegisteredChunks(player.uniqueId)
+        plugin.chunkManager.unregisterRegisteredChunks(player.uniqueId)
         plugin.regionManager.unregisterRegion(player.uniqueId)
     }
 }

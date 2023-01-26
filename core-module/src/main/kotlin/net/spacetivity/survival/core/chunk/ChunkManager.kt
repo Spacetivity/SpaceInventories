@@ -99,9 +99,10 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         return ClaimResult.SUCCESS
     }
 
+    fun loadClaimedChunks(ownerId: UUID) = getClaimedChunksByPlayer(ownerId).forEach { coords -> registerChunk(ownerId, coords.first, coords.second) }
     fun registerChunk(ownerId: UUID, x: Int, z: Int) = cachedClaimedChunks.put(ownerId, Pair(x, z))
     fun unregisterChunk(ownerId: UUID, x: Int, z: Int) = cachedClaimedChunks.remove(ownerId, Pair(x, z))
-    fun clearRegisteredChunks(ownerId: UUID) = cachedClaimedChunks.entries().filter { entry -> entry.key == ownerId }
+    fun unregisterRegisteredChunks(ownerId: UUID) = cachedClaimedChunks.entries().filter { entry -> entry.key == ownerId }
         .forEach { (ownerId, coords) -> unregisterChunk(ownerId, coords.first, coords.second) }
 
     object ChunkStorage : Table("claimed_chunks") {
