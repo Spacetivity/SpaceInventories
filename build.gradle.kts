@@ -7,7 +7,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.neptunsworld.core"
+    group = "net.spacetivity.core"
     version = "1.0-SNAPSHOT"
 
     repositories {

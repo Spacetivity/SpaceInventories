@@ -1,4 +1,4 @@
-package net.spacetivity.survival.core.chunk
+package net.spacetivity.survival.core.chunk.container
 
 import org.bukkit.Chunk
 import org.bukkit.Location

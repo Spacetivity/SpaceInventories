@@ -1,4 +1,4 @@
-package net.spacetivity.survival.core.chunk
+package net.spacetivity.survival.core.chunk.container
 
 enum class ClaimResult(val isSuccess: Boolean) {
 

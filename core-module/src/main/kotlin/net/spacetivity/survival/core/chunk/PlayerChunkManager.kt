@@ -1,5 +1,6 @@
 package net.spacetivity.survival.core.chunk
 
+import net.spacetivity.survival.core.chunk.container.ChunkPlayer
 import java.util.*
 
 class PlayerChunkManager {

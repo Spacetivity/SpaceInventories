@@ -1,4 +1,4 @@
-package net.spacetivity.survival.core.chunk
+package net.spacetivity.survival.core.chunk.container
 
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import org.bukkit.Bukkit
@@ -14,14 +14,15 @@ import java.util.*
 data class ChunkPlayer(
     val plugin: SpaceSurvivalPlugin,
     val uniqueId: UUID,
-    val chunks: MutableList<ClaimedChunk>
+    val chunks: MutableList<ClaimedChunk> //TODO: change that to region
 ) {
 
     fun claimChunk(chunk: Chunk): ClaimResult {
-        if (hasClaimedChunk(chunk.x, chunk.z)) return ClaimResult.ALREADY_CLAIMED
+        if (hasClaimedChunk(chunk)) return ClaimResult.ALREADY_CLAIMED
         if (plugin.chunkManager.isChunkClaimed(chunk)) return ClaimResult.ALREADY_CLAIMED_BY_OTHER_PLAYER
 
-        chunks.add(ClaimedChunk(uniqueId, chunk.world, chunk.x, chunk.z))
+        // TODO: implement this when regions are added : chunks.add(ClaimedChunk(uniqueId, chunk.world, chunk.x, chunk.z))
+        plugin.chunkManager.registerChunk(uniqueId, chunk.x, chunk.z)
 
         transaction {
             ChunkStorage.insert {
@@ -30,17 +31,16 @@ data class ChunkPlayer(
                 it[coordinateZ] = chunk.z
             }
         }
-
         return ClaimResult.SUCCESS
     }
 
     fun isInClaimedChunk(): Boolean {
         val chunk = Bukkit.getPlayer(uniqueId)?.chunk
-        return hasClaimedChunk(chunk!!.x, chunk.z)
+        return hasClaimedChunk(chunk!!)
     }
 
-    fun hasClaimedChunk(xCoordinate: Int, zCoordinate: Int): Boolean {
-        return chunks.any { claimedChunk: ClaimedChunk -> claimedChunk.xCoordinate == xCoordinate && claimedChunk.zCoordinate == zCoordinate && claimedChunk.ownerId.toString() == uniqueId.toString() }
+    fun hasClaimedChunk(chunk: Chunk): Boolean {
+        return plugin.chunkManager.getChunkOwner(chunk) == uniqueId
     }
 
     fun delete() {
