@@ -1,6 +1,7 @@
 package net.spacetivity.survival.core.listener
 
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
+import net.spacetivity.survival.core.translation.TranslationKey
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -39,11 +40,17 @@ class TestListener(private var plugin: SpaceSurvivalPlugin) : Listener {
 
         plugin.regionManager.initRegion(player)
 
+        plugin.translator.sendMessage(player, TranslationKey.JOIN_MESSAGE)
+
         /* val result = plugin.chunkManager.claimChunk(player.uniqueId, chunk, true)
         val color: TextColor = if (result.isSuccess) NamedTextColor.GREEN else NamedTextColor.RED
 
         player.sendActionBar(Component.text("Claim status ${result.name} | Owner is: ${plugin.chunkManager.getChunkOwner(chunk)
             ?.let { Bukkit.getOfflinePlayer(it) }}").color(color)) */
+    }
+
+    fun test(vararg names: String) {
+
     }
 
     @EventHandler

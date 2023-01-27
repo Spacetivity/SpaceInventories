@@ -26,15 +26,25 @@ class TranslationManager(val plugin: SpaceSurvivalPlugin) {
             val file: File = Paths.get("${translationDirectory.path}/${dataFile.type.fileName}.json").toFile()
 
             // looks if the file exists
-            if (Files.exists(file.toPath())) continue
+            if (!Files.exists(file.toPath())) {
+                val messageFile: TranslatableTextFile = textFiles[TranslationType.MESSAGE]!!
+                messageFile.translations.add(TranslatableText(plugin, "prefix.global", TextSendFunction.CHAT ,"<dark_aqua>Network <gray>|"))
+                messageFile.translations.add(TranslatableText(plugin, "prefix.individual", TextSendFunction.CHAT ,"<dark_aqua><prefix_text> <gray>|"))
 
-            // then all message keys for the selected type are collected and then for all key a default text is inserted in the correct file
-            TranslationKey.values().filter { key -> key.type == dataFile.type }.forEach { key ->
-                dataFile.translations.add(TranslatableText(key.tag, "Default Text"))
+                // then all message keys for the selected type are collected and then for all key a default text is inserted in the correct file
+                TranslationKey.values().filter { key -> key.type == dataFile.type }.forEach { key ->
+                    dataFile.translations.add(TranslatableText(plugin, key.tag, TextSendFunction.CHAT, "Default Text"))
+                }
+
+                cachedTranslations.addAll(messageFile.translations)
+
+                // then the file is saves in json
+                plugin.fileUtils.saveFile(file, dataFile)
+            } else {
+                val translatableTextFile: TranslatableTextFile = plugin.fileUtils.readFile(file, TranslatableTextFile::class.java)!!
+                cachedTranslations.addAll(translatableTextFile.translations)
             }
 
-            // then the file is saves in json
-            plugin.fileUtils.saveFile(file, dataFile)
         }
 
         // then all the text files are scanned for their content and the existing content is cached
