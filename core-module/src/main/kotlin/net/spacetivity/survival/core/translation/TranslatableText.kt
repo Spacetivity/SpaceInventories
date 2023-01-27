@@ -7,7 +7,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
 import java.util.*
 
-data class TranslatableText(val type: TranslationType, val key: TranslationKey, val text: String) {
+data class TranslatableText(val key: String, val text: String) {
 
     fun toComponent(toReplace: Array<TagResolver>): Component {
         val builder = MiniMessage.builder()

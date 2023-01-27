@@ -23,14 +23,14 @@ class TranslationManager(val plugin: SpaceSurvivalPlugin) {
 
     fun defaultInitializeTranslationFiles() {
         for (dataFile: TranslatableTextFile in textFiles.values) {
-            val file: File = Paths.get("${translationDirectory.path + dataFile.type.fileName}.json").toFile()
+            val file: File = Paths.get("${translationDirectory.path}/${dataFile.type.fileName}.json").toFile()
 
             // looks if the file exists
             if (Files.exists(file.toPath())) continue
 
             // then all message keys for the selected type are collected and then for all key a default text is inserted in the correct file
             TranslationKey.values().filter { key -> key.type == dataFile.type }.forEach { key ->
-                dataFile.translations.add(TranslatableText(key.type, key, "Default Text"))
+                dataFile.translations.add(TranslatableText(key.tag, "Default Text"))
             }
 
             // then the file is saves in json
