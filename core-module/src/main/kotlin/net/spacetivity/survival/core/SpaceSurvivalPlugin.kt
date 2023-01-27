@@ -11,8 +11,9 @@ import net.spacetivity.survival.core.commandsystem.CommandManager
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.listener.TestListener
-import net.spacetivity.survival.core.message.MessageRepository
 import net.spacetivity.survival.core.region.RegionManager
+import net.spacetivity.survival.core.translation.TranslationManager
+import net.spacetivity.survival.core.utils.FileUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -26,14 +27,16 @@ class SpaceSurvivalPlugin : JavaPlugin() {
 
     val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
+    lateinit var fileUtils: FileUtils
+    lateinit var translationManager: TranslationManager
     lateinit var commandManager: CommandManager
-    lateinit var messageRepository: MessageRepository
     lateinit var chunkManager: ChunkManager
     lateinit var regionManager: RegionManager
 
     override fun onEnable() {
+        this.fileUtils = FileUtils(this)
+        this.translationManager = TranslationManager(this)
         this.commandManager = CommandManager()
-        this.messageRepository = MessageRepository(this)
         this.chunkManager = ChunkManager(this)
         this.regionManager = RegionManager(this)
 
