@@ -1,6 +1,7 @@
 package net.spacetivity.survival.core.translation
 
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
+import org.bukkit.Sound
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -28,12 +29,12 @@ class TranslationManager(val plugin: SpaceSurvivalPlugin) {
             // looks if the file exists
             if (!Files.exists(file.toPath())) {
                 val messageFile: TranslatableTextFile = textFiles[TranslationType.MESSAGE]!!
-                messageFile.translations.add(TranslatableText(plugin, "prefix.global", TextSendFunction.CHAT ,"<dark_aqua>Network <gray>|"))
-                messageFile.translations.add(TranslatableText(plugin, "prefix.individual", TextSendFunction.CHAT ,"<dark_aqua><prefix_text> <gray>|"))
+                messageFile.translations.add(TranslatableText(plugin, "prefix.global", TextSendFunction.CHAT ,false, null,"<dark_aqua>Network <gray>|"))
+                messageFile.translations.add(TranslatableText(plugin, "prefix.individual", TextSendFunction.CHAT ,false, null,"<dark_aqua><prefix_text> <gray>|"))
 
                 // then all message keys for the selected type are collected and then for all key a default text is inserted in the correct file
                 TranslationKey.values().filter { key -> key.type == dataFile.type }.forEach { key ->
-                    dataFile.translations.add(TranslatableText(plugin, key.tag, TextSendFunction.CHAT, "Default Text"))
+                    dataFile.translations.add(TranslatableText(plugin, key.tag, TextSendFunction.CHAT, true, Sound.ITEM_GOAT_HORN_SOUND_0, "Default Text"))
                 }
 
                 cachedTranslations.addAll(messageFile.translations)

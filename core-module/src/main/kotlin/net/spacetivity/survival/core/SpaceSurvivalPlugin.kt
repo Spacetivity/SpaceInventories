@@ -11,11 +11,10 @@ import net.spacetivity.survival.core.commandsystem.CommandManager
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.database.DatabaseFile
-import net.spacetivity.survival.core.listener.TestListener
+import net.spacetivity.survival.core.listener.ChunkManageListener
 import net.spacetivity.survival.core.region.RegionManager
 import net.spacetivity.survival.core.translation.TranslatableText
 import net.spacetivity.survival.core.translation.TranslationManager
-import net.spacetivity.survival.core.translation.Translator
 import net.spacetivity.survival.core.translation.serialization.TranslatableTextTypeAdapter
 import net.spacetivity.survival.core.utils.FileUtils
 import org.bukkit.Bukkit
@@ -35,10 +34,13 @@ class SpaceSurvivalPlugin: JavaPlugin() {
     lateinit var gson: Gson
     lateinit var fileUtils: FileUtils
     lateinit var translationManager: TranslationManager
-    lateinit var translator: Translator
     lateinit var commandManager: CommandManager
     lateinit var chunkManager: ChunkManager
     lateinit var regionManager: RegionManager
+
+    init {
+        instance = this
+    }
 
     override fun onEnable() {
         this.gson = GsonBuilder()
@@ -48,7 +50,6 @@ class SpaceSurvivalPlugin: JavaPlugin() {
 
         this.fileUtils = FileUtils(this)
         this.translationManager = TranslationManager(this)
-        this.translator = Translator(this)
         this.commandManager = CommandManager()
         this.chunkManager = ChunkManager(this)
         this.regionManager = RegionManager(this)
@@ -67,14 +68,8 @@ class SpaceSurvivalPlugin: JavaPlugin() {
             SchemaUtils.create(ChunkManager.ChunkStorage, RegionManager.RegionStorage)
         }
 
-        println(translationManager.cachedTranslations.size)
-
-        translationManager.cachedTranslations.forEach { translatableText ->
-            println(translatableText.key)
-        }
-
-        server.pluginManager.registerEvents(TestListener(this), this)
-        server.pluginManager.registerEvents(TestListener(this), this)
+        server.pluginManager.registerEvents(ChunkManageListener(this), this)
+        server.pluginManager.registerEvents(ChunkManageListener(this), this)
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
             Bukkit.getOnlinePlayers().forEach { player: Player? ->
@@ -92,9 +87,7 @@ class SpaceSurvivalPlugin: JavaPlugin() {
         val databaseFilePath = File("${dataFolder.toPath()}/database")
         val result: DatabaseFile
 
-        if (!Files.exists(databaseFilePath.toPath())) {
-            Files.createDirectories(databaseFilePath.toPath())
-        }
+        if (!Files.exists(databaseFilePath.toPath())) Files.createDirectories(databaseFilePath.toPath())
 
         val file: File = Paths.get("${databaseFilePath}/mysql.json").toFile()
 
@@ -115,5 +108,11 @@ class SpaceSurvivalPlugin: JavaPlugin() {
 
     fun isNumeric(toCheck: String): Boolean {
         return toCheck.all { char -> char.isDigit() }
+    }
+
+    companion object {
+        @JvmStatic
+        lateinit var instance: SpaceSurvivalPlugin
+            private set
     }
 }

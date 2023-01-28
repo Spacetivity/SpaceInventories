@@ -6,16 +6,19 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
+import org.bukkit.Sound
 import java.util.*
 
 data class TranslatableText(
     val plugin: SpaceSurvivalPlugin,
     val key: String,
     val sendFunction: TextSendFunction,
+    val playSoundOnTrigger: Boolean,
+    val sound: Sound?,
     val text: String
 ) {
 
-    val defaultTags: Array<TagResolver> = arrayOf(
+    private val defaultTags: Array<TagResolver> = arrayOf(
         StandardTags.gradient(),
         StandardTags.color(),
         StandardTags.decorations(),
@@ -41,7 +44,7 @@ data class TranslatableText(
             val unformattedPrefixName = splittedPrefixTag[1]
             val prefixName = unformattedPrefixName.substring(0, unformattedPrefixName.length - 1)
             val validPrefixName = prefixName[0].toString().uppercase(Locale.getDefault()) + prefixName.substring(1)
-            val prefixFormat = plugin.translator.findRawPrefix(false)
+            val prefixFormat = Translator.findRawPrefix(false)
             val prefix = prefixFormat.replace("<prefix_text>".toRegex(), validPrefixName)
             placeholder = Placeholder.component(
                 "prefix_$prefixName", MiniMessage.builder().tags(
@@ -49,7 +52,7 @@ data class TranslatableText(
                 ).build().deserialize(prefix)
             )
         } else if (text.contains("<prefix>")) {
-            val prefix = plugin.translator.findRawPrefix(true)
+            val prefix = Translator.findRawPrefix(true)
             val outputPrefix: String = prefix
             placeholder = Placeholder.component(
                 "prefix", MiniMessage.builder().tags(

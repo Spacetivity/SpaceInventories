@@ -7,6 +7,8 @@ import com.google.gson.stream.JsonWriter
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.translation.TextSendFunction
 import net.spacetivity.survival.core.translation.TranslatableText
+import org.bukkit.Sound
+import kotlin.properties.Delegates
 
 class TranslatableTextTypeAdapter(val plugin: SpaceSurvivalPlugin) : TypeAdapter<TranslatableText>() {
 
@@ -19,6 +21,12 @@ class TranslatableTextTypeAdapter(val plugin: SpaceSurvivalPlugin) : TypeAdapter
         writer.name("sendFunction")
         writer.value(translatableText.sendFunction.name.uppercase())
 
+        writer.name("playSoundOnTrigger")
+        writer.value(translatableText.playSoundOnTrigger)
+
+        writer.name("sound")
+        writer.value(translatableText.sound?.name?.uppercase())
+
         writer.name("text")
         writer.value(translatableText.text)
 
@@ -28,6 +36,8 @@ class TranslatableTextTypeAdapter(val plugin: SpaceSurvivalPlugin) : TypeAdapter
     override fun read(reader: JsonReader?): TranslatableText {
         lateinit var key: String
         lateinit var sendFunction: TextSendFunction
+        var playSoundOnTrigger by Delegates.notNull<Boolean>()
+        var sound: Sound? = null
         lateinit var text: String
 
         reader?.beginObject()
@@ -49,6 +59,16 @@ class TranslatableTextTypeAdapter(val plugin: SpaceSurvivalPlugin) : TypeAdapter
                 sendFunction = TextSendFunction.valueOf(reader.nextString().uppercase())
             }
 
+            if (fieldName == "playSoundOnTrigger") {
+                reader.peek()
+                playSoundOnTrigger = reader.nextBoolean()
+            }
+
+            if (fieldName == "sound") {
+                reader.peek()
+                sound = Sound.valueOf(reader.nextString())
+            }
+
             if (fieldName == "text") {
                 reader.peek()
                 text = reader.nextString()
@@ -56,7 +76,7 @@ class TranslatableTextTypeAdapter(val plugin: SpaceSurvivalPlugin) : TypeAdapter
         }
 
         reader.endObject()
-        return TranslatableText(plugin, key, sendFunction, text)
+        return TranslatableText(plugin, key, sendFunction, playSoundOnTrigger, sound, text)
     }
 
 }
