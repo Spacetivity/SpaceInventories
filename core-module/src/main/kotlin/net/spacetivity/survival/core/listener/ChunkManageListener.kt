@@ -41,7 +41,7 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
         plugin.chunkManager.loadClaimedChunks(player.uniqueId)
         plugin.regionManager.loadRegion(player.uniqueId)
 
-        player.inventory.setItem(4, ItemBuilder(Material.FISHING_ROD)
+        player.inventory.setItem(4, ItemBuilder(Material.REINFORCED_DEEPSLATE)
                 .name(Translator.getTranslation(TranslationKey.CLAIM_ITEM_NAME))
                 .enchantment(Enchantment.DURABILITY, 1)
                 .loreByString(mutableListOf("Place this block to claim your", "first chunk in the survival world."))

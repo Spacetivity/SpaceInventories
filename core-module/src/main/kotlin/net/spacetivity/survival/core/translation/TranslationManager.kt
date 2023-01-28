@@ -34,7 +34,9 @@ class TranslationManager(val plugin: SpaceSurvivalPlugin) {
 
                 // then all message keys for the selected type are collected and then for all key a default text is inserted in the correct file
                 TranslationKey.values().filter { key -> key.type == dataFile.type }.forEach { key ->
-                    dataFile.translations.add(TranslatableText(plugin, key.tag, TextSendFunction.CHAT, true, Sound.ITEM_GOAT_HORN_SOUND_0, "Default Text"))
+                    val isMessageFile = key.type == TranslationType.MESSAGE
+                    dataFile.translations.add(TranslatableText(plugin, key.tag, TextSendFunction.CHAT,
+                        isMessageFile, if(isMessageFile) Sound.ENTITY_PLAYER_LEVELUP else null, key.defaultText))
                 }
 
                 cachedTranslations.addAll(messageFile.translations)
