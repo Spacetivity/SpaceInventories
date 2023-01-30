@@ -12,49 +12,49 @@ class ItemBuilder(material: Material) {
     var itemStack: ItemStack = ItemStack(material)
     var itemMeta: ItemMeta = itemStack.itemMeta
 
-    fun name(name: Component): ItemBuilder {
+    fun setName(name: Component): ItemBuilder {
         itemMeta.displayName(name)
         itemStack.itemMeta = itemMeta
         return this
     }
 
-    fun name(name: String): ItemBuilder {
+    fun setName(name: String): ItemBuilder {
         itemMeta.displayName(Component.text(name))
         itemStack.itemMeta = itemMeta
         return this
     }
 
 
-    fun loreByString(lore: MutableList<String>): ItemBuilder {
+    fun setLoreByString(lore: MutableList<String>): ItemBuilder {
         itemMeta.lore(lore.map { s: String -> Component.text(s) })
         itemStack.itemMeta = itemMeta
         return this
     }
 
-    fun loreByComponent(lore: MutableList<Component>): ItemBuilder {
+    fun setLoreByComponent(lore: MutableList<Component>): ItemBuilder {
         itemMeta.lore(lore)
         itemStack.itemMeta = itemMeta
         return this
     }
 
-    fun amount(amount: Int): ItemBuilder {
+    fun setAmount(amount: Int): ItemBuilder {
         itemStack.amount = amount
         return this
     }
 
-    fun enchantment(enchantment: Enchantment, level: Int): ItemBuilder {
+    fun addEnchantment(enchantment: Enchantment, level: Int): ItemBuilder {
         itemMeta.addEnchant(enchantment, level, true)
         itemStack.itemMeta = itemMeta
         return this
     }
 
-    fun flags(vararg flag: ItemFlag): ItemBuilder {
+    fun addFlags(vararg flag: ItemFlag): ItemBuilder {
         itemMeta.addItemFlags(*flag)
         itemStack.itemMeta = itemMeta
         return this
     }
 
-    fun unbreakable(): ItemBuilder {
+    fun setUnbreakable(): ItemBuilder {
         itemMeta.isUnbreakable = true
         itemStack.itemMeta = itemMeta
         return this

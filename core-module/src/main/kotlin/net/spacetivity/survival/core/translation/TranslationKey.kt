@@ -5,6 +5,12 @@ enum class TranslationKey(val tag: String, val type: TranslationType, val defaul
     JOIN_MESSAGE("player.join", TranslationType.MESSAGE, "<dark_purple>Player <light_purple><name> <dark_purple>has joined the server."),
     QUIT_MESSAGE("player.quit", TranslationType.MESSAGE, "<dark_purple>Player <light_purple><name> <dark_purple>has left the server."),
 
-    CLAIM_ITEM_NAME("item.claimItem.displayName", TranslationType.ITEM_COMPONENT, "<dark_purple>Claim your first chunk")
+    CLAIM_ITEM_NAME("item.claimItem.displayName", TranslationType.ITEM_COMPONENT, "<dark_purple>Claim your first chunk"),
+
+    REGION_CREATED("region.created", TranslationType.MESSAGE, "<green>You have claimed your first chunk. Now you have to process to expand your region."),
+
+    PLAYER_NO_REGION_FOUND("region.noRegionFoundForPlayer", TranslationType.MESSAGE, "<red>You don't have claimed a region yet!"),
+
+    PLAYER_REGION_UNCLAIMED("region.playerUnclaimedRegion", TranslationType.MESSAGE, "<green>You have successfully unclaimed your chunks."),
 
 }

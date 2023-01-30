@@ -8,7 +8,9 @@ import net.spacetivity.survival.core.region.RegionManager
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
+import org.bukkit.block.Block
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -16,6 +18,26 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
 
     val cachedClaimedChunks: Multimap<UUID, Pair<Int, Int>> = ArrayListMultimap.create()
     val table = ChunkStorage
+
+    fun getHighestPointInChunk(chunk: Chunk): Location {
+        val highestBlocks: MutableList<Location> = mutableListOf()
+
+        for (x in 0..15) {
+            for (z in 0..15) {
+                val yCordOfHighestBlockInChunk = chunk.world.getHighestBlockYAt((chunk.x * 16) + x, (chunk.z * 16) + z)
+
+                for (y in -64..yCordOfHighestBlockInChunk) {
+                    val currentHighestBlock: Block = chunk.getBlock(x, y, z)
+                    highestBlocks.add(currentHighestBlock.location)
+                }
+            }
+        }
+
+        val highestBlocksSortedByYLevel: MutableList<Location> =
+            highestBlocks.sortedBy { location -> location.y }.reversed().toMutableList()
+
+        return highestBlocksSortedByYLevel[0]
+    }
 
     fun getChunksAroundChunk(chunk: Chunk, bypassClaimedChunks: Boolean): MutableList<Chunk> {
         val world = chunk.world
@@ -88,6 +110,7 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
 
             if (updateRegion) {
                 val regionTable = RegionManager.RegionStorage
+
                 regionTable.update({ regionTable.ownerId eq uniqueId.toString() }) {
                     it[regionTable.chunksClaimed] = region!!.chunksClaimed + 1
                 }
@@ -99,11 +122,21 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         return ClaimResult.SUCCESS
     }
 
-    fun loadClaimedChunks(ownerId: UUID) = getClaimedChunksByPlayer(ownerId).forEach { coords -> registerChunk(ownerId, coords.first, coords.second) }
+    fun unclaimAllChunksFromPlayer(ownerId: UUID) {
+        unregisterRegisteredChunks(ownerId)
+        transaction {
+            ChunkStorage.deleteWhere { ChunkStorage.ownerId eq ownerId.toString() }
+        }
+    }
+
+    fun loadClaimedChunks(ownerId: UUID) =
+        getClaimedChunksByPlayer(ownerId).forEach { coords -> registerChunk(ownerId, coords.first, coords.second) }
+
     fun registerChunk(ownerId: UUID, x: Int, z: Int) = cachedClaimedChunks.put(ownerId, Pair(x, z))
     fun unregisterChunk(ownerId: UUID, x: Int, z: Int) = cachedClaimedChunks.remove(ownerId, Pair(x, z))
-    fun unregisterRegisteredChunks(ownerId: UUID) = cachedClaimedChunks.entries().filter { entry -> entry.key == ownerId }
-        .forEach { (ownerId, coords) -> unregisterChunk(ownerId, coords.first, coords.second) }
+    fun unregisterRegisteredChunks(ownerId: UUID) =
+        cachedClaimedChunks.entries().filter { entry -> entry.key == ownerId }
+            .forEach { (ownerId, coords) -> unregisterChunk(ownerId, coords.first, coords.second) }
 
     object ChunkStorage : Table("claimed_chunks") {
         val ownerId: Column<String> = varchar("ownerId", 50)

@@ -36,7 +36,7 @@ class TranslationManager(val plugin: SpaceSurvivalPlugin) {
                 TranslationKey.values().filter { key -> key.type == dataFile.type }.forEach { key ->
                     val isMessageFile = key.type == TranslationType.MESSAGE
                     dataFile.translations.add(TranslatableText(plugin, key.tag, TextSendFunction.CHAT,
-                        isMessageFile, if(isMessageFile) Sound.ENTITY_PLAYER_LEVELUP else null, key.defaultText))
+                        false, if(isMessageFile) Sound.ENTITY_PLAYER_LEVELUP else null, key.defaultText))
                 }
 
                 cachedTranslations.addAll(messageFile.translations)

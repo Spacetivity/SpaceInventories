@@ -6,12 +6,14 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.spacetivity.survival.core.chunk.ChunkManager
+import net.spacetivity.survival.core.commands.RegionCommand
 import net.spacetivity.survival.core.commandsystem.BukkitCommandExecutor
 import net.spacetivity.survival.core.commandsystem.CommandManager
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.database.DatabaseFile
 import net.spacetivity.survival.core.listener.ChunkManageListener
+import net.spacetivity.survival.core.location.MCLocManager
 import net.spacetivity.survival.core.region.RegionManager
 import net.spacetivity.survival.core.translation.TranslatableText
 import net.spacetivity.survival.core.translation.TranslationManager
@@ -65,11 +67,13 @@ class SpaceSurvivalPlugin: JavaPlugin() {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(ChunkManager.ChunkStorage, RegionManager.RegionStorage)
+            SchemaUtils.create(ChunkManager.ChunkStorage, MCLocManager.MCLocStorage, RegionManager.RegionStorage)
         }
 
         server.pluginManager.registerEvents(ChunkManageListener(this), this)
         server.pluginManager.registerEvents(ChunkManageListener(this), this)
+
+        registerCommand(RegionCommand())
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
             Bukkit.getOnlinePlayers().forEach { player: Player? ->

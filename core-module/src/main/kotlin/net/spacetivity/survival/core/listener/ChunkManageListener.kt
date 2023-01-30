@@ -41,11 +41,11 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
         plugin.chunkManager.loadClaimedChunks(player.uniqueId)
         plugin.regionManager.loadRegion(player.uniqueId)
 
-        player.inventory.setItem(4, ItemBuilder(Material.REINFORCED_DEEPSLATE)
-                .name(Translator.getTranslation(TranslationKey.CLAIM_ITEM_NAME))
-                .enchantment(Enchantment.DURABILITY, 1)
-                .loreByString(mutableListOf("Place this block to claim your", "first chunk in the survival world."))
-                .flags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
+        player.inventory.setItem(4, ItemBuilder(Material.SCULK_CATALYST)
+                .setName(Translator.getTranslation(TranslationKey.CLAIM_ITEM_NAME))
+                .addEnchantment(Enchantment.DURABILITY, 1)
+                .setLoreByString(mutableListOf("Place this block to claim your", "first chunk in the survival world."))
+                .addFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
                 .build()
         )
 
@@ -63,9 +63,11 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
         val player = event.player
 
         if (!player.isOp) return
-        if (event.block.type != Material.GOLD_BLOCK) return
+        if (player.inventory.itemInMainHand.itemMeta == null || player.inventory.itemInMainHand.itemMeta.displayName() == null) return
+        if (player.inventory.itemInMainHand.itemMeta.displayName() != Translator.getTranslation(TranslationKey.CLAIM_ITEM_NAME))
+            return
 
+        player.inventory.remove(Material.SCULK_CATALYST)
         plugin.regionManager.initRegion(player)
-        Translator.sendMessage(player, TranslationKey.JOIN_MESSAGE)
     }
 }

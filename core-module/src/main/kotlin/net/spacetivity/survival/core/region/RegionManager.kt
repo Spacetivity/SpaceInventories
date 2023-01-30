@@ -5,9 +5,13 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.title.Title
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
+import net.spacetivity.survival.core.location.MCLoc
+import net.spacetivity.survival.core.translation.TranslationKey
+import net.spacetivity.survival.core.translation.Translator
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -39,13 +43,15 @@ class RegionManager(val plugin: SpaceSurvivalPlugin) {
 
         player.sendActionBar(Component.text("Claim status ${result.name} | Owner is: ${
             plugin.chunkManager.getChunkOwner(player.chunk)
-                ?.let { Bukkit.getOfflinePlayer(it) }
+                ?.let { Bukkit.getOfflinePlayer(it).name }
         }").color(color))
 
         if (!result.isSuccess) return
 
-        val newRegion = ClaimedRegion(player.uniqueId, 1, true, mutableListOf())
+        val newRegion = ClaimedRegion(player.uniqueId, 1, true, mutableListOf(), mutableListOf())
         registerRegion(newRegion)
+
+        player.sendMessage(Translator.getTranslation(TranslationKey.REGION_CREATED))
 
         transaction {
             RegionStorage.insert {
@@ -53,7 +59,22 @@ class RegionManager(val plugin: SpaceSurvivalPlugin) {
                 it[chunksClaimed] = newRegion.chunksClaimed
                 it[open] = newRegion.open
                 it[trustedPlayers] = plugin.gson.toJson(newRegion.trustedPlayers)
+                it[locations] = plugin.gson.toJson(newRegion.locations)
             }
+        }
+    }
+
+    fun unclaimRegion(ownerId: UUID) {
+        //TODO: unprotect chests
+        //TODO: remove all settings and set chunk settings to standard
+
+        // first delete all claimed chunks from player
+        plugin.chunkManager.unclaimAllChunksFromPlayer(ownerId)
+        
+        // then delete the region object from the player
+        unregisterRegion(ownerId)
+        transaction {
+            RegionStorage.deleteWhere { RegionStorage.ownerId eq ownerId.toString() }
         }
     }
 
@@ -64,7 +85,8 @@ class RegionManager(val plugin: SpaceSurvivalPlugin) {
                     UUID.fromString(row[table.ownerId]),
                     row[table.chunksClaimed],
                     row[table.open],
-                    plugin.gson.fromJson(row[table.trustedPlayers], Array<UUID>::class.java).toMutableList()
+                    plugin.gson.fromJson(row[table.trustedPlayers], Array<UUID>::class.java).toMutableList(),
+                    plugin.gson.fromJson(row[table.locations], Array<MCLoc>::class.java).toMutableList()
                 )
                 cachedClaimedRegions.put(ownerId, region)
             }
@@ -80,5 +102,6 @@ class RegionManager(val plugin: SpaceSurvivalPlugin) {
         val chunksClaimed: Column<Int> = integer("chunksClaimed")
         val open: Column<Boolean> = bool("open")
         val trustedPlayers: Column<String> = text("trustedPlayers")
+        val locations: Column<String> = text("locations")
     }
 }
