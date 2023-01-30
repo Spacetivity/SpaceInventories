@@ -8,7 +8,6 @@ import net.spacetivity.survival.core.region.RegionManager
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
-import org.bukkit.block.Block
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,11 +24,7 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         for (x in 0..15) {
             for (z in 0..15) {
                 val yCordOfHighestBlockInChunk = chunk.world.getHighestBlockYAt((chunk.x * 16) + x, (chunk.z * 16) + z)
-
-                for (y in -64..yCordOfHighestBlockInChunk) {
-                    val currentHighestBlock: Block = chunk.getBlock(x, y, z)
-                    highestBlocks.add(currentHighestBlock.location)
-                }
+                for (y in -64..yCordOfHighestBlockInChunk) highestBlocks.add(chunk.getBlock(x, y, z).location)
             }
         }
 
@@ -45,8 +40,11 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         val offset = -1..1
 
         for (x in offset) for (z in offset) {
-            val currentChunk = world.getChunkAt(chunk.x + x, chunk.z + z)
+            val currentChunk: Chunk = world.getChunkAt(chunk.x + x, chunk.z + z)
+
+            if (currentChunk.x == chunk.x && currentChunk.z == chunk.z) continue
             if (bypassClaimedChunks && isChunkClaimed(currentChunk)) continue
+
             chunksAroundChunk.add(currentChunk)
         }
 

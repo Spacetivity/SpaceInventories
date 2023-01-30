@@ -13,4 +13,6 @@ enum class TranslationKey(val tag: String, val type: TranslationType, val defaul
 
     PLAYER_REGION_UNCLAIMED("region.playerUnclaimedRegion", TranslationType.MESSAGE, "<green>You have successfully unclaimed your chunks."),
 
+    PLAYER_REGION_EXPAND_PROCESS_NOT_MOVE("region.expander.notMove", TranslationType.MESSAGE, "red>You cannot move while in expandsion mode!"),
+
 }

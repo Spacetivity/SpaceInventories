@@ -1,5 +1,7 @@
 package net.spacetivity.survival.core.commands
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
@@ -33,7 +35,14 @@ class RegionCommand : ICommandExecutor {
                 }
                 "expand" -> {
 
-                   // SpaceSurvivalPlugin.instance.chunkManager.getHighestPointInChunk(player)
+                    val region = regionManager.getRegion(player.uniqueId)
+
+                    if (region == null) {
+                        player.sendMessage(Component.text("You don't have a region!", NamedTextColor.RED))
+                        return
+                    }
+
+                    SpaceSurvivalPlugin.instance.regionExpandManager.initExpandProcess(player, region)
 
                 }
                 "info" -> {

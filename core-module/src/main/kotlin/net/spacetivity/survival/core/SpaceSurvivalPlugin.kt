@@ -14,6 +14,7 @@ import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.database.DatabaseFile
 import net.spacetivity.survival.core.listener.ChunkManageListener
 import net.spacetivity.survival.core.location.MCLocManager
+import net.spacetivity.survival.core.region.RegionExpandManager
 import net.spacetivity.survival.core.region.RegionManager
 import net.spacetivity.survival.core.translation.TranslatableText
 import net.spacetivity.survival.core.translation.TranslationManager
@@ -39,6 +40,7 @@ class SpaceSurvivalPlugin: JavaPlugin() {
     lateinit var commandManager: CommandManager
     lateinit var chunkManager: ChunkManager
     lateinit var regionManager: RegionManager
+    lateinit var regionExpandManager: RegionExpandManager
 
     init {
         instance = this
@@ -55,6 +57,7 @@ class SpaceSurvivalPlugin: JavaPlugin() {
         this.commandManager = CommandManager()
         this.chunkManager = ChunkManager(this)
         this.regionManager = RegionManager(this)
+        this.regionExpandManager = RegionExpandManager()
 
         val dbProperties: DatabaseFile = createOrLoadDatabaseProperties()
 

@@ -12,7 +12,7 @@ data class ClaimedRegion(
 ) {
 
     fun hasReachedClaimingLimit(): Boolean {
-        return chunksClaimed >= 1 //TODO: Change this to configurable value
+        return chunksClaimed >= 4 //TODO: Change this to configurable value
     }
 
 }

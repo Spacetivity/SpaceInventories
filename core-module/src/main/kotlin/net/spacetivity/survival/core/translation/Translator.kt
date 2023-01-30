@@ -1,6 +1,7 @@
 package net.spacetivity.survival.core.translation
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import org.bukkit.entity.Player
@@ -24,7 +25,14 @@ object Translator {
     }
 
     fun sendMessage(player: Player, key: TranslationKey, vararg toReplace: TagResolver) {
+
+        if (cachedTranslations.none { text -> text.key == key.tag }) {
+            player.sendMessage(Component.text("Message ${key.tag} not found...", NamedTextColor.RED))
+            return
+        }
+
         val translatableText: TranslatableText = cachedTranslations.filter { text -> text.key == key.tag }[0]
+
         val sendFunction: TextSendFunction = translatableText.sendFunction
         val toComponent = translatableText.toComponent(*toReplace)
 
