@@ -58,6 +58,7 @@ class SpaceSurvivalPlugin: JavaPlugin() {
         this.chunkManager = ChunkManager(this)
         this.regionManager = RegionManager(this)
         this.regionExpandManager = RegionExpandManager()
+        this.regionExpandManager.handleInteractionChecking()
 
         val dbProperties: DatabaseFile = createOrLoadDatabaseProperties()
 
@@ -88,6 +89,10 @@ class SpaceSurvivalPlugin: JavaPlugin() {
                     else "Chunk is claimed by $ownerDisplayName.").color(color))
             }
         }, 0, 20)
+    }
+
+    override fun onDisable() {
+        regionExpandManager.expandTask.cancel()
     }
 
     private fun createOrLoadDatabaseProperties(): DatabaseFile {
