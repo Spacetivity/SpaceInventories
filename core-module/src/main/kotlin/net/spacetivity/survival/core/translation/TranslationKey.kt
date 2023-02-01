@@ -15,4 +15,8 @@ enum class TranslationKey(val tag: String, val type: TranslationType, val defaul
 
     PLAYER_REGION_EXPAND_PROCESS_NOT_MOVE("region.expander.notMove", TranslationType.MESSAGE, "red>You cannot move while in expandsion mode!"),
 
+    PLAYER_REGION_CLAIM_REQUEST("region.expand.claimRequest", TranslationType.MESSAGE,
+        "<green>Click <bold><click:run_command:/region addChunk <x> <z>><hover:show_text:'<gray>Claim the chunk'>HERE</click><!b> <green>to claim chunk: <gold>(<x> | <z>)"
+    ),
+
 }

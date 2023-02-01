@@ -1,6 +1,8 @@
 package net.spacetivity.survival.core.region
 
 import net.spacetivity.survival.core.location.MCLoc
+import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import java.util.*
 
 data class ClaimedRegion(
@@ -10,6 +12,10 @@ data class ClaimedRegion(
     val trustedPlayers: MutableList<UUID>,
     val locations: MutableList<MCLoc>
 ) {
+
+    fun getOwner(): OfflinePlayer {
+        return Bukkit.getOfflinePlayer(ownerId)
+    }
 
     fun hasReachedClaimingLimit(): Boolean {
         return chunksClaimed >= 4 //TODO: Change this to configurable value

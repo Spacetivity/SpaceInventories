@@ -23,7 +23,7 @@ data class TranslatableText(
         StandardTags.color(),
         StandardTags.decorations(),
         StandardTags.clickEvent(),
-        StandardTags.gradient()
+        StandardTags.hoverEvent()
     )
 
     fun toComponent(vararg toReplace: TagResolver): Component {
@@ -57,11 +57,7 @@ data class TranslatableText(
             placeholder = Placeholder.component(
                 "prefix", MiniMessage.builder().tags(
                     TagResolver.builder()
-                        .resolver(StandardTags.gradient())
-                        .resolver(StandardTags.color())
-                        .resolver(StandardTags.decorations())
-                        .resolver(StandardTags.clickEvent())
-                        .resolver(StandardTags.hoverEvent())
+                        .resolvers(*defaultTags)
                         .build()
                 ).build().deserialize(outputPrefix)
             )

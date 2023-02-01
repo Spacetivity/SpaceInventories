@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.chunk.ChunkManager
+import net.spacetivity.survival.core.utils.ItemBuilder
 import org.bukkit.*
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -18,7 +19,7 @@ import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.scheduler.BukkitTask
 import org.bukkit.util.Vector
 
-class RegionExpandManager : Listener {
+class RegionExpansionManager : Listener {
 
     val chunkManager: ChunkManager = SpaceSurvivalPlugin.instance.chunkManager
     val regionManager: RegionManager = SpaceSurvivalPlugin.instance.regionManager
@@ -48,7 +49,27 @@ class RegionExpandManager : Listener {
 
         player.setMetadata("chunkExpandSessionOwner", FixedMetadataValue(SpaceSurvivalPlugin.instance, 1))
         player.teleport(selectionBoxMiddleLocation.clone().add(0.0, 1.0, 0.0))
-        player.sendMessage("Now look at the spawned entity above your neighbour chunks to claim it.")
+
+        player.sendMessage(
+            Component.text(
+                "Now look at the spawned entity above your neighbour chunks to claim it.",
+                NamedTextColor.YELLOW
+            )
+        )
+
+        SpaceSurvivalPlugin.instance.inventoryManager.saveInventory(player)
+        player.inventory.clear()
+
+        player.inventory.setItem(
+            1, ItemBuilder(Material.EMERALD)
+                .setName(Component.text("CLAIM CHUNK", NamedTextColor.GREEN, TextDecoration.BOLD))
+                .build()
+        )
+
+        player.inventory.setItem(7, ItemBuilder(Material.EMERALD)
+            .setName(Component.text("CANCEL", NamedTextColor.RED, TextDecoration.BOLD))
+            .onInteract { cancelExpansion(player) }
+            .build())
 
         return ExpandResult.SUCCESS
     }
@@ -90,15 +111,41 @@ class RegionExpandManager : Listener {
                             )
                         }.map { entity: Entity -> entity as Shulker }.toMutableList()
 
-                    for (selectorEntity: Shulker in selectorEntities) {
+                    for (entity: Shulker in selectorEntities) {
                         val playerEyeLocation: Location = player.eyeLocation
-                        val vector: Vector =
-                            selectorEntity.eyeLocation.toVector().subtract(playerEyeLocation.toVector())
+                        val vector: Vector = entity.eyeLocation.toVector().subtract(playerEyeLocation.toVector())
                         val dotProduct: Double = vector.normalize().dot(playerEyeLocation.direction)
                         val isActive: Boolean = dotProduct > 0.99
 
-                        if (isActive) showChunkOutline(selectorEntity.chunk, selectorEntity.location.blockY, player)
-                        handleEntityStatus(selectorEntity.chunk, isActive, selectorEntity)
+                        if (isActive) {
+                            if (!player.hasMetadata("currentChunk"))
+                                player.setMetadata(
+                                    "currentChunk",
+                                    FixedMetadataValue(
+                                        SpaceSurvivalPlugin.instance,
+                                        Pair(entity.chunk.x, entity.chunk.z)
+                                    )
+                                )
+
+                            if (player.hasMetadata("currentChunk") && player.getMetadata("currentChunk")[0].value() != Pair(
+                                    entity.chunk.x,
+                                    entity.chunk.z
+                                )
+                            ) {
+                                player.removeMetadata("currentChunk", SpaceSurvivalPlugin.instance)
+                                player.setMetadata(
+                                    "currentChunk",
+                                    FixedMetadataValue(
+                                        SpaceSurvivalPlugin.instance,
+                                        Pair(entity.chunk.x, entity.chunk.z)
+                                    )
+                                )
+                            }
+
+                            showChunkOutline(entity.chunk, entity.location.blockY, player)
+                        }
+
+                        handleEntityStatus(entity.chunk, isActive, entity)
                     }
 
                 }
@@ -106,8 +153,8 @@ class RegionExpandManager : Listener {
     }
 
     fun showChunkOutline(chunk: Chunk, yLevel: Int, player: Player) {
-        val minX = chunk.x * 16
-        val minZ = chunk.z * 16
+        val minX: Int = chunk.x * 16
+        val minZ: Int = chunk.z * 16
 
         val dustOptions: Particle.DustOptions = Particle.DustOptions(
             Color.fromBGR(232, 183, 35),
@@ -120,7 +167,6 @@ class RegionExpandManager : Listener {
             player.spawnParticle(Particle.REDSTONE, minX + 17.0, y.toDouble(), z.toDouble(), 20, dustOptions)
             player.spawnParticle(Particle.REDSTONE, x.toDouble(), y.toDouble(), minZ + 17.0, 20, dustOptions)
         }
-
     }
 
     fun handleEntityStatus(chunk: Chunk, isActive: Boolean, entity: Shulker) {
@@ -134,6 +180,24 @@ class RegionExpandManager : Listener {
             if (isActive) NamedTextColor.GREEN else NamedTextColor.GOLD,
             TextDecoration.BOLD
         )
+    }
+
+    fun getPlayersInExpansionProcess(): List<Player> {
+        return Bukkit.getOnlinePlayers().filter { player -> player.hasMetadata("chunkExpandSessionOwner") }
+    }
+
+    fun cancelExpansion(player: Player) {
+        val originalChunk: Chunk = player.chunk
+        val highestPointInChunk: Location = chunkManager.getHighestPointInChunk(originalChunk)
+        val selectionBoxMiddleLocation: Location =
+            chunkManager.getChunkCenterLocation(highestPointInChunk.y + selectorPositionYModifier, originalChunk)
+
+        selectionBoxMiddleLocation.block.type = Material.AIR
+
+        player.removeMetadata("chunkExpandSessionOwner", SpaceSurvivalPlugin.instance)
+        player.removeMetadata("currentChunk", SpaceSurvivalPlugin.instance)
+
+        player.world.entities.filter { entity -> entity.hasMetadata("chunkExpansionProcess_${player.uniqueId}") }.forEach { e -> e.remove() }
     }
 
     @EventHandler

@@ -42,13 +42,23 @@ class RegionCommand : ICommandExecutor {
                         return
                     }
 
-                    SpaceSurvivalPlugin.instance.regionExpandManager.initExpandProcess(player, region)
+                    SpaceSurvivalPlugin.instance.regionExpansionManager.initExpandProcess(player, region)
 
                 }
                 "info" -> {
 
+                    val region = regionManager.getRegion(player.uniqueId)
 
+                    if (region == null) {
+                        player.sendMessage(Component.text("You don't own a region yet!", NamedTextColor.RED))
+                        return
+                    }
 
+                    player.sendMessage(Component.text("Statistics about your region:", NamedTextColor.YELLOW))
+                    player.sendMessage(Component.text("- Chunks claimed: ${region.chunksClaimed}", NamedTextColor.GRAY))
+                    player.sendMessage(Component.text("- Owner: ${region.getOwner().name}", NamedTextColor.GRAY))
+                    player.sendMessage(Component.text("- Members: ${region.trustedPlayers.size} (/region members)", NamedTextColor.GRAY))
+                    
                 }
                 else -> sendUsage(sender)
             }
@@ -65,7 +75,7 @@ class RegionCommand : ICommandExecutor {
     }
 
     override fun onTabComplete(sender: ICommandSender, args: List<String>): MutableList<String> {
-        return mutableListOf()
+        return mutableListOf("unclaim", "expand", "info")
     }
 
 }

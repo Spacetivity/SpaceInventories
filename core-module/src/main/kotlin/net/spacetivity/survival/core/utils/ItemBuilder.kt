@@ -1,8 +1,10 @@
 package net.spacetivity.survival.core.utils
 
 import net.kyori.adventure.text.Component
+import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
@@ -11,6 +13,7 @@ class ItemBuilder(material: Material) {
 
     var itemStack: ItemStack = ItemStack(material)
     var itemMeta: ItemMeta = itemStack.itemMeta
+    lateinit var action: (PlayerInteractEvent) -> (Unit)
 
     fun setName(name: Component): ItemBuilder {
         itemMeta.displayName(name)
@@ -57,6 +60,12 @@ class ItemBuilder(material: Material) {
     fun setUnbreakable(): ItemBuilder {
         itemMeta.isUnbreakable = true
         itemStack.itemMeta = itemMeta
+        return this
+    }
+
+    fun onInteract(action: (PlayerInteractEvent) -> (Unit)): ItemBuilder {
+        this.action = action
+        SpaceSurvivalPlugin.clickableItems.add(this)
         return this
     }
 
