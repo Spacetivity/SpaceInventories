@@ -19,16 +19,20 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
 
-        if (player.inventory.contents.isEmpty())
-            plugin.inventoryManager.loadInventory(player)
-
+        plugin.inventoryManager.loadInventory(player)
         plugin.chunkManager.loadClaimedChunks(player.uniqueId)
         plugin.regionManager.loadRegion(player.uniqueId)
 
-        player.inventory.setItem(4, ItemBuilder(Material.SCULK_CATALYST)
+        if (plugin.regionManager.getRegion(player.uniqueId) == null) player.inventory.setItem(
+            4, ItemBuilder(Material.SCULK_CATALYST)
                 .setName(Translator.getTranslation(TranslationKey.CLAIM_ITEM_NAME))
                 .addEnchantment(Enchantment.DURABILITY, 1)
-                .setLoreByString(mutableListOf("Place this block to claim your", "first chunk in the survival world."))
+                .setLoreByString(
+                    mutableListOf(
+                        "Place this block to claim your",
+                        "first chunk in the survival world."
+                    )
+                )
                 .addFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
                 .build()
         )
