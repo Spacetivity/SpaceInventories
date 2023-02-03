@@ -7,6 +7,8 @@ class RegionSelectorManager {
 
     private val entities: MutableList<RegionSelector> = mutableListOf()
 
+    fun registerSelector(selector: RegionSelector) = entities.add(selector)
+
     fun removeSelectorsFromPlayer(player: Player) {
         for (selectorEntity in getSelectorsFromPlayer(player)) selectorEntity.entity.remove()
         entities.removeAll { e -> e.owner.uniqueId == player.uniqueId }

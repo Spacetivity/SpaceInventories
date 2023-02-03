@@ -5,9 +5,8 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.chunk.ChunkManager
-import org.bukkit.Bukkit
-import org.bukkit.Chunk
-import org.bukkit.Location
+import net.spacetivity.survival.core.utils.RGBUtils.toRGBCode
+import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.entity.Shulker
@@ -28,6 +27,8 @@ class RegionSelector(val owner: Player, val chunk: Chunk, var isSelected: Boolea
         } else {
             Status.AVAILABLE
         }
+
+        regionSelectorManager.registerSelector(this)
     }
 
     fun spawn(yLevel: Double) {
@@ -41,20 +42,50 @@ class RegionSelector(val owner: Player, val chunk: Chunk, var isSelected: Boolea
         setCustomName()
     }
 
-    fun updateOnSelected() {
-        if (!status.availableForSelection) return
+    fun update(isActive: Boolean, yLevel: Int) {
+        if (isActive) {
+            val lastActiveSelector = regionSelectorManager.getActiveSelector(owner)
+            lastActiveSelector?.isSelected = false
+            //TODO: To achieve old results do: lastActiveSelector?.status = Status.AVAILABLE
+            lastActiveSelector?.highlight(false)
 
-        status = Status.SELECTED_FOR_CLAIMING
+            status = Status.SELECTED_FOR_CLAIMING
+            isSelected = true
 
-        regionSelectorManager.getActiveSelector(owner)?.highlight(false)
-        highlight(true)
+            highlight(true)
+        }
+
+        showChunkOutline(yLevel)
+    }
+
+    fun showChunkOutline(yLevel: Int) {
+        val minX: Int = entity.chunk.x * 16
+        val minZ: Int = entity.chunk.z * 16
+
+        val colorCode: Triple<Int, Int, Int> = when(status) {
+            Status.CLAIMED -> toRGBCode(NamedTextColor.RED)
+            Status.CLAIMED_BY_YOURSELF -> toRGBCode(NamedTextColor.RED)
+            Status.SELECTED_FOR_CLAIMING -> toRGBCode(NamedTextColor.YELLOW)
+            Status.AVAILABLE -> toRGBCode(NamedTextColor.GREEN)
+        }
+
+        val dustOptions: Particle.DustOptions = Particle.DustOptions(
+            Color.fromRGB(colorCode.first, colorCode.second, colorCode.third),
+            1F
+        )
+
+        for (x in minX until minX + 17) for (y in yLevel until yLevel + 1) for (z in minZ until minZ + 17) {
+            owner.spawnParticle(Particle.REDSTONE, minX.toDouble(), y.toDouble(), z.toDouble(), 20, dustOptions)
+            owner.spawnParticle(Particle.REDSTONE, x.toDouble(), y.toDouble(), minZ.toDouble(), 20, dustOptions)
+            owner.spawnParticle(Particle.REDSTONE, minX + 17.0, y.toDouble(), z.toDouble(), 20, dustOptions)
+            owner.spawnParticle(Particle.REDSTONE, x.toDouble(), y.toDouble(), minZ + 17.0, 20, dustOptions)
+        }
     }
 
     private fun highlight(isActive: Boolean) {
         entity.isGlowing = isActive
         setCustomName()
     }
-
 
     private fun setCustomName() {
         entity.customName(

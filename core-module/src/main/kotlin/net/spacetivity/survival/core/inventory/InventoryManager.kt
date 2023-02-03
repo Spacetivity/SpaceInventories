@@ -18,6 +18,8 @@ class InventoryManager {
                             row[InventoryStorage.serializedInventory]
                         )
 
+                        player.inventory.clear()
+                        player.inventory.armorContents = emptyArray()
                         player.inventory.contents = data
                     }
             }
