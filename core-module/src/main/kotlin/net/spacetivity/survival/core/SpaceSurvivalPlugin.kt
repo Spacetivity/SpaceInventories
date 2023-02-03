@@ -18,6 +18,7 @@ import net.spacetivity.survival.core.listener.ItemClickListener
 import net.spacetivity.survival.core.location.MCLocManager
 import net.spacetivity.survival.core.region.RegionExpansionManager
 import net.spacetivity.survival.core.region.RegionManager
+import net.spacetivity.survival.core.region.entity.RegionSelectorManager
 import net.spacetivity.survival.core.translation.TranslatableText
 import net.spacetivity.survival.core.translation.TranslationManager
 import net.spacetivity.survival.core.translation.serialization.TranslatableTextTypeAdapter
@@ -42,6 +43,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
     lateinit var translationManager: TranslationManager
     lateinit var commandManager: CommandManager
     lateinit var chunkManager: ChunkManager
+    lateinit var regionSelectorManager: RegionSelectorManager
     lateinit var regionManager: RegionManager
     lateinit var regionExpansionManager: RegionExpansionManager
     lateinit var inventoryManager: InventoryManager
@@ -60,6 +62,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         this.translationManager = TranslationManager(this)
         this.commandManager = CommandManager()
         this.chunkManager = ChunkManager(this)
+        this.regionSelectorManager = RegionSelectorManager()
         this.regionManager = RegionManager(this)
         this.regionExpansionManager = RegionExpansionManager()
         this.regionExpansionManager.handleInteractionChecking()

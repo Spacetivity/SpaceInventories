@@ -34,7 +34,7 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         return highestBlocksSortedByYLevel[0]
     }
 
-    fun getChunksAroundChunk(chunk: Chunk, bypassClaimedChunks: Boolean): MutableList<Chunk> {
+    fun getChunksAroundChunk(chunk: Chunk, selectClaimedChunks: Boolean): MutableList<Chunk> {
         val world = chunk.world
         val chunksAroundChunk: MutableList<Chunk> = mutableListOf()
         val offset = -1..1
@@ -43,7 +43,7 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
             val currentChunk: Chunk = world.getChunkAt(chunk.x + x, chunk.z + z)
 
             if (currentChunk.x == chunk.x && currentChunk.z == chunk.z) continue
-            if (bypassClaimedChunks && isChunkClaimed(currentChunk)) continue
+            if (!selectClaimedChunks && isChunkClaimed(currentChunk)) continue
 
             chunksAroundChunk.add(currentChunk)
         }

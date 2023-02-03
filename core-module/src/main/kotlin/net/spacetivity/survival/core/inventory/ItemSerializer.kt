@@ -17,7 +17,6 @@ object ItemSerializer {
 
     @Throws(IllegalStateException::class)
     fun serializePlayerInventory(playerInventory: PlayerInventory): String? {
-
         val contents: Array<ItemStack?> =
             playerInventory.contents.clone().map { itemStack -> itemStack ?: ItemBuilder(Material.AIR).build() }
                 .toTypedArray()
