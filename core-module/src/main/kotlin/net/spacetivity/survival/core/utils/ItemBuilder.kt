@@ -12,8 +12,12 @@ import org.bukkit.inventory.meta.ItemMeta
 class ItemBuilder(material: Material) {
 
     var itemStack: ItemStack = ItemStack(material)
-    var itemMeta: ItemMeta = itemStack.itemMeta
+    lateinit var itemMeta: ItemMeta
     lateinit var action: (PlayerInteractEvent) -> (Unit)
+
+    init {
+        if (itemStack.type != Material.AIR) itemMeta = itemStack.itemMeta
+    }
 
     fun setName(name: Component): ItemBuilder {
         itemMeta.displayName(name)

@@ -1,6 +1,8 @@
 package net.spacetivity.survival.core.inventory
 
+import net.spacetivity.survival.core.utils.ItemBuilder
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
@@ -14,14 +16,26 @@ import java.io.IOException
 object ItemSerializer {
 
     @Throws(IllegalStateException::class)
-    fun serializeInventory(playerInventory: PlayerInventory): Array<String?> {
-        val content = toBase64(playerInventory)
-        val armor = serializeItems(playerInventory.armorContents)
-        return arrayOf(content, armor)
+    fun serializePlayerInventory(playerInventory: PlayerInventory): String? {
+
+        val contents: Array<ItemStack?> =
+            playerInventory.contents.clone().map { itemStack -> itemStack ?: ItemBuilder(Material.AIR).build() }
+                .toTypedArray()
+
+        return serializeItems(contents)
     }
 
     @Throws(IllegalStateException::class)
-    fun deserializeInventory(data : String): Inventory {
+    fun deserializePlayerInventory(items: String): Array<ItemStack?> {
+        return try {
+            deserializeItems(items)
+        } catch (e: Exception) {
+            throw IllegalStateException("Unable to save item stacks.", e)
+        }
+    }
+
+    @Throws(IllegalStateException::class)
+    fun deserializeInventory(data: String): Inventory {
         return try {
             val inputStream = ByteArrayInputStream(Base64Coder.decodeLines(data))
             val dataInput = BukkitObjectInputStream(inputStream)
@@ -46,7 +60,7 @@ object ItemSerializer {
 
             dataOutput.writeInt(inventory.size)
 
-            for (i in 0 until inventory.size){
+            for (i in 0 until inventory.size) {
                 dataOutput.writeObject(inventory.getItem(i))
             }
 
