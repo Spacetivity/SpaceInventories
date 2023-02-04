@@ -5,11 +5,14 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.chunk.ChunkManager
-import net.spacetivity.survival.core.utils.RGBUtils.toRGBCode
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.Chunk
+import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.entity.Shulker
+import org.bukkit.metadata.FixedMetadataValue
 
 class RegionSelector(val owner: Player, val chunk: Chunk, var isSelected: Boolean = false) {
 
@@ -39,46 +42,52 @@ class RegionSelector(val owner: Player, val chunk: Chunk, var isSelected: Boolea
         entity.setGravity(false)
 
         entity.isCustomNameVisible = true
+        entity.setMetadata(
+            "chunkExpansionProcess_${owner.uniqueId}",
+            FixedMetadataValue(SpaceSurvivalPlugin.instance, Pair(chunk.x, chunk.z))
+        )
+
         setCustomName()
     }
 
-    fun update(isActive: Boolean, yLevel: Int) {
+    fun update(isActive: Boolean) {
         if (isActive) {
-            val lastActiveSelector = regionSelectorManager.getActiveSelector(owner)
-            lastActiveSelector?.isSelected = false
-            //TODO: To achieve old results do: lastActiveSelector?.status = Status.AVAILABLE
-            lastActiveSelector?.highlight(false)
-
             status = Status.SELECTED_FOR_CLAIMING
             isSelected = true
 
             highlight(true)
+            showChunkOutline(entity.location.blockY)
+        } else {
+            if (status != Status.AVAILABLE) {
+                status = Status.AVAILABLE
+                isSelected = false
+                highlight(false)
+                showChunkOutline(entity.location.blockY)
+            }
         }
-
-        showChunkOutline(yLevel)
     }
 
-    fun showChunkOutline(yLevel: Int) {
-        val minX: Int = entity.chunk.x * 16
-        val minZ: Int = entity.chunk.z * 16
+    private fun showChunkOutline(yLevel: Int) {
+        val minX: Int = chunk.x * 16
+        val minZ: Int = chunk.z * 16
+        val material = if (isSelected) Material.GOLD_BLOCK else Material.AIR
 
-        val colorCode: Triple<Int, Int, Int> = when(status) {
-            Status.CLAIMED -> toRGBCode(NamedTextColor.RED)
-            Status.CLAIMED_BY_YOURSELF -> toRGBCode(NamedTextColor.RED)
-            Status.SELECTED_FOR_CLAIMING -> toRGBCode(NamedTextColor.YELLOW)
-            Status.AVAILABLE -> toRGBCode(NamedTextColor.GREEN)
-        }
+        for (x in minX..minX + 16) {
+            for (y in yLevel until yLevel + 1) {
+                for (z in minZ..minZ + 16) {
 
-        val dustOptions: Particle.DustOptions = Particle.DustOptions(
-            Color.fromRGB(colorCode.first, colorCode.second, colorCode.third),
-            1F
-        )
+                    val locs: List<Location> = listOf(
+                        Location(owner.world, minX.toDouble(), y.toDouble(), z.toDouble()),
+                        Location(owner.world, x.toDouble(), y.toDouble(), minZ.toDouble()),
+                        Location(owner.world, minX + 16.0, y.toDouble(), z.toDouble()),
+                        Location(owner.world, x.toDouble(), y.toDouble(), minZ + 16.0)
+                    )
 
-        for (x in minX until minX + 17) for (y in yLevel until yLevel + 1) for (z in minZ until minZ + 17) {
-            owner.spawnParticle(Particle.REDSTONE, minX.toDouble(), y.toDouble(), z.toDouble(), 20, dustOptions)
-            owner.spawnParticle(Particle.REDSTONE, x.toDouble(), y.toDouble(), minZ.toDouble(), 20, dustOptions)
-            owner.spawnParticle(Particle.REDSTONE, minX + 17.0, y.toDouble(), z.toDouble(), 20, dustOptions)
-            owner.spawnParticle(Particle.REDSTONE, x.toDouble(), y.toDouble(), minZ + 17.0, 20, dustOptions)
+                    locs.forEach { loc ->
+                        loc.block.setType(material, true)
+                    }
+                }
+            }
         }
     }
 
@@ -94,9 +103,19 @@ class RegionSelector(val owner: Player, val chunk: Chunk, var isSelected: Boolea
                     val ownerName: String = Bukkit.getOfflinePlayer(chunkManager.getChunkOwner(chunk)!!).name!!
                     Component.text("This chunk is claimed by $ownerName.", NamedTextColor.RED, TextDecoration.BOLD)
                 }
-                Status.CLAIMED_BY_YOURSELF -> Component.text("You own this chunk!", NamedTextColor.RED, TextDecoration.BOLD)
+
+                Status.CLAIMED_BY_YOURSELF -> Component.text(
+                    "You own this chunk!",
+                    NamedTextColor.RED,
+                    TextDecoration.BOLD
+                )
+
                 Status.SELECTED_FOR_CLAIMING -> Component.text("Selected", NamedTextColor.YELLOW, TextDecoration.BOLD)
-                Status.AVAILABLE -> Component.text("Chunk: ${chunk.x}, ${chunk.z}", NamedTextColor.GREEN, TextDecoration.BOLD)
+                Status.AVAILABLE -> Component.text(
+                    "Chunk: ${chunk.x}, ${chunk.z}",
+                    NamedTextColor.GREEN,
+                    TextDecoration.BOLD
+                )
             }
         )
     }

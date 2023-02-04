@@ -18,7 +18,7 @@ class RegionSelectorManager {
         entities.filter { e -> e.owner.uniqueId == player.uniqueId }
 
     fun getActiveSelector(player: Player): RegionSelector? =
-        entities.find { e -> e.owner.uniqueId == player.uniqueId && e.isSelected }
+        entities.find { e -> e.owner.uniqueId == player.uniqueId && e.status == RegionSelector.Status.SELECTED_FOR_CLAIMING }
 
 
     fun getSelector(player: Player, chunk: Chunk): RegionSelector? =

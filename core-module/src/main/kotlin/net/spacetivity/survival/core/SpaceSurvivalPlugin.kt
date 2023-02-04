@@ -64,7 +64,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         this.chunkManager = ChunkManager(this)
         this.regionSelectorManager = RegionSelectorManager()
         this.regionManager = RegionManager(this)
-        this.regionExpansionManager = RegionExpansionManager()
+        this.regionExpansionManager = RegionExpansionManager(this)
         this.regionExpansionManager.handleInteractionChecking()
         this.inventoryManager = InventoryManager()
 

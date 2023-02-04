@@ -8,6 +8,7 @@ import net.spacetivity.survival.core.region.RegionManager
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
+import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,6 +18,10 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
 
     val cachedClaimedChunks: Multimap<UUID, Pair<Int, Int>> = ArrayListMultimap.create()
     val table = ChunkStorage
+
+    fun isPlayerInChunk(player: Player, chunk: Chunk): Boolean {
+        return player.chunk.x == chunk.x && player.chunk.z == chunk.z
+    }
 
     fun getHighestPointInChunk(chunk: Chunk): Location {
         val highestBlocks: MutableList<Location> = mutableListOf()

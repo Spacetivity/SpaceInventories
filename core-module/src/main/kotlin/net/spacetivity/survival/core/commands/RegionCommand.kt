@@ -42,7 +42,8 @@ class RegionCommand : ICommandExecutor {
                         return
                     }
 
-                    SpaceSurvivalPlugin.instance.regionExpansionManager.initExpandProcess(player, region)
+                    val result = SpaceSurvivalPlugin.instance.regionExpansionManager.initExpandProcess(player, region)
+                    player.sendMessage(Component.text("Expansion result: ${result.name}", NamedTextColor.RED))
 
                 }
                 "info" -> {

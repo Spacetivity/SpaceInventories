@@ -10,7 +10,6 @@ import net.spacetivity.survival.core.region.entity.RegionSelector
 import net.spacetivity.survival.core.region.entity.RegionSelectorManager
 import net.spacetivity.survival.core.utils.ItemBuilder
 import org.bukkit.*
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -21,26 +20,28 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.scheduler.BukkitTask
 import org.bukkit.util.Vector
+import java.util.*
 
 @Suppress("UNCHECKED_CAST")
-class RegionExpansionManager : Listener {
+class RegionExpansionManager(val plugin: SpaceSurvivalPlugin) : Listener {
 
-    val chunkManager: ChunkManager = SpaceSurvivalPlugin.instance.chunkManager
-    val selectorManager: RegionSelectorManager = SpaceSurvivalPlugin.instance.regionSelectorManager
+    val chunkManager: ChunkManager = plugin.chunkManager
+    val regionManager: RegionManager = plugin.regionManager
+    val selectorManager: RegionSelectorManager = plugin.regionSelectorManager
 
     val selectorPositionYModifier: Double = 20.0
     val selectorEntityYModifier: Double = 10.0
-    val selectorEntityType: EntityType = EntityType.SHULKER
 
     lateinit var expandTask: BukkitTask
 
     init {
-        Bukkit.getPluginManager().registerEvents(this, SpaceSurvivalPlugin.instance)
+        Bukkit.getPluginManager().registerEvents(this, plugin)
     }
 
     fun initExpandProcess(player: Player, region: ClaimedRegion): ExpandResult {
         if (player.hasMetadata("chunkExpandSessionOwner")) return ExpandResult.ALREADY_IN_CLAIMING_PROCESS
         if (region.hasReachedClaimingLimit()) return ExpandResult.REACHED_MAX_CLAIM_LIMIT
+        if (!regionManager.isInRegion(player)) return ExpandResult.IS_NOT_IN_REGION
 
         val originalChunk: Chunk = player.chunk
         val highestPointInChunk: Location = chunkManager.getHighestPointInChunk(originalChunk).clone()
@@ -52,10 +53,10 @@ class RegionExpansionManager : Listener {
 
         initSelectors(player, highestPointInChunk.y + selectorEntityYModifier)
 
-        player.setMetadata("chunkExpandSessionOwner", FixedMetadataValue(SpaceSurvivalPlugin.instance, 1))
+        player.setMetadata("chunkExpandSessionOwner", FixedMetadataValue(plugin, 1))
         player.teleport(selectionBoxMiddleLocation.add(0.0, 1.0, 0.0))
 
-        SpaceSurvivalPlugin.instance.inventoryManager.saveInventory(player)
+        plugin.inventoryManager.saveInventory(player)
         player.inventory.clear()
 
         player.inventory.setItem(
@@ -95,16 +96,15 @@ class RegionExpansionManager : Listener {
     }
 
     fun handleInteractionChecking() {
-        expandTask = Bukkit.getScheduler().runTaskTimer(SpaceSurvivalPlugin.instance, Runnable {
+        expandTask = Bukkit.getScheduler().runTaskTimer(plugin, Runnable {
             Bukkit.getOnlinePlayers().filter { player -> player.hasMetadata("chunkExpandSessionOwner") }
                 .forEach { player: Player ->
                     for (selector in selectorManager.getSelectorsFromPlayer(player)) {
                         val eyeLocation: Location = player.eyeLocation
                         val vector: Vector = selector.entity.eyeLocation.toVector().subtract(eyeLocation.toVector())
                         val dotProduct: Double = vector.normalize().dot(eyeLocation.direction)
-                        val isActive: Boolean = dotProduct > 0.99
-
-                        selector.update(isActive, selector.entity.location.blockY)
+                        val isActive: Boolean = dotProduct >= 0.99
+                        selector.update(isActive)
                     }
                 }
         }, 0L, 20L)
@@ -114,9 +114,11 @@ class RegionExpansionManager : Listener {
         chunkManager.getChunkCenterLocation(chunkManager.getHighestPointInChunk(player.chunk).clone().y, player.chunk)
             .clone().block.type = Material.AIR
 
-        player.removeMetadata("chunkExpandSessionOwner", SpaceSurvivalPlugin.instance)
-        SpaceSurvivalPlugin.instance.regionSelectorManager.removeSelectorsFromPlayer(player)
-        SpaceSurvivalPlugin.instance.inventoryManager.loadInventory(player)
+        player.removeMetadata("chunkExpandSessionOwner", plugin)
+        
+        plugin.regionSelectorManager.getActiveSelector(player)?.update(false)
+        plugin.regionSelectorManager.removeSelectorsFromPlayer(player)
+        plugin.inventoryManager.loadInventory(player)
     }
 
     @EventHandler
