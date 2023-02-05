@@ -1,11 +1,11 @@
-package net.spacetivity.survival.core.region
+package net.spacetivity.survival.core.land
 
 import net.spacetivity.survival.core.location.MCLoc
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import java.util.*
 
-data class ClaimedRegion(
+data class Land(
     val ownerId: UUID,
     var chunksClaimed: Int,
     var open: Boolean,

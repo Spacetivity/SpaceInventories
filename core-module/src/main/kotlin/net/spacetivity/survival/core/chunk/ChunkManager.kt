@@ -3,8 +3,8 @@ package net.spacetivity.survival.core.chunk
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import net.spacetivity.survival.core.SpaceSurvivalPlugin
-import net.spacetivity.survival.core.region.ClaimedRegion
-import net.spacetivity.survival.core.region.RegionManager
+import net.spacetivity.survival.core.land.Land
+import net.spacetivity.survival.core.land.LandManager
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.Location
@@ -95,24 +95,27 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         return ownerId
     }
 
-    fun claimChunk(uniqueId: UUID, chunk: Chunk, updateRegion: Boolean): ClaimResult {
+    fun claimChunk(uniqueId: UUID, chunk: Chunk, updateLand: Boolean): ClaimResult {
         if (hasClaimedChunk(uniqueId, chunk)) return ClaimResult.ALREADY_CLAIMED
         if (plugin.chunkManager.isChunkClaimed(chunk)) return ClaimResult.ALREADY_CLAIMED_BY_OTHER_PLAYER
 
-        val region: ClaimedRegion? = plugin.regionManager.getRegion(uniqueId)
+        val region: Land? = plugin.landManager.getLand(uniqueId)
         if (region != null && region.hasReachedClaimingLimit()) return ClaimResult.REACHED_MAX_CLAIM_LIMIT
 
         plugin.chunkManager.registerChunk(uniqueId, chunk.x, chunk.z)
+
+        val isOriginalChunk: Boolean = getClaimedChunksByPlayer(uniqueId).isEmpty()
 
         transaction {
             table.insert {
                 it[ownerId] = uniqueId.toString()
                 it[coordinateX] = chunk.x
                 it[coordinateZ] = chunk.z
+                it[originalChunk] = isOriginalChunk
             }
 
-            if (updateRegion) {
-                val regionTable = RegionManager.RegionStorage
+            if (updateLand) {
+                val regionTable = LandManager.LandStorage
 
                 regionTable.update({ regionTable.ownerId eq uniqueId.toString() }) {
                     it[regionTable.chunksClaimed] = region!!.chunksClaimed + 1
@@ -141,9 +144,28 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
         cachedClaimedChunks.entries().filter { entry -> entry.key == ownerId }
             .forEach { (ownerId, coords) -> unregisterChunk(ownerId, coords.first, coords.second) }
 
+    fun getOriginalChunk(ownerId: UUID): Triple<Int, Int, Boolean>? {
+        var triple: Triple<Int, Int, Boolean>? = null
+
+        transaction {
+
+            ChunkStorage.select { ChunkStorage.ownerId eq ownerId.toString() and (ChunkStorage.originalChunk eq true) }.map { row ->
+                val x = row[ChunkStorage.coordinateX]
+                val z = row[ChunkStorage.coordinateZ]
+                val isOriginalChunk = row[ChunkStorage.originalChunk]
+                triple = Triple(x, z, isOriginalChunk)
+            }
+
+        }
+
+        return triple
+    }
+
+
     object ChunkStorage : Table("claimed_chunks") {
         val ownerId: Column<String> = varchar("ownerId", 50)
         val coordinateX: Column<Int> = integer("coordinateX")
         val coordinateZ: Column<Int> = integer("coordinateZ")
+        val originalChunk: Column<Boolean> = bool("originalChunk")
     }
 }

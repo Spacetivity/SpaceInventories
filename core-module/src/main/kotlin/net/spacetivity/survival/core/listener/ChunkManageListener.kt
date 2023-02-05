@@ -4,6 +4,7 @@ import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.translation.TranslationKey
 import net.spacetivity.survival.core.translation.Translator
 import net.spacetivity.survival.core.utils.ItemBuilder
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.EventHandler
@@ -21,9 +22,13 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
 
         plugin.inventoryManager.loadInventory(player)
         plugin.chunkManager.loadClaimedChunks(player.uniqueId)
-        plugin.regionManager.loadRegion(player.uniqueId)
+        plugin.landManager.loadLand(player.uniqueId)
 
-        if (plugin.regionManager.getRegion(player.uniqueId) == null) player.inventory.setItem(
+        val originalChunk = plugin.chunkManager.getOriginalChunk(player.uniqueId)
+
+        player.teleport(Location(player.world, originalChunk!!.first * 16.0, 100.0, originalChunk.second * 16.0))
+
+        if (plugin.landManager.getLand(player.uniqueId) == null) player.inventory.setItem(
             4, ItemBuilder(Material.SCULK_CATALYST)
                 .setName(Translator.getTranslation(TranslationKey.CLAIM_ITEM_NAME))
                 .addEnchantment(Enchantment.DURABILITY, 1)
@@ -44,7 +49,7 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
         val player = event.player
         plugin.inventoryManager.saveInventory(player)
         plugin.chunkManager.unregisterRegisteredChunks(player.uniqueId)
-        plugin.regionManager.unregisterRegion(player.uniqueId)
+        plugin.landManager.unregisterLand(player.uniqueId)
     }
 
     @EventHandler
@@ -57,6 +62,6 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
             return
 
         player.inventory.remove(Material.SCULK_CATALYST)
-        plugin.regionManager.initRegion(player)
+        plugin.landManager.initLand(player)
     }
 }

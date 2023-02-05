@@ -6,19 +6,17 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.spacetivity.survival.core.chunk.ChunkManager
-import net.spacetivity.survival.core.commands.RegionCommand
+import net.spacetivity.survival.core.commands.LandCommand
 import net.spacetivity.survival.core.commandsystem.BukkitCommandExecutor
 import net.spacetivity.survival.core.commandsystem.CommandManager
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.database.DatabaseFile
 import net.spacetivity.survival.core.inventory.InventoryManager
+import net.spacetivity.survival.core.land.LandManager
 import net.spacetivity.survival.core.listener.ChunkManageListener
 import net.spacetivity.survival.core.listener.ItemClickListener
 import net.spacetivity.survival.core.location.MCLocManager
-import net.spacetivity.survival.core.region.RegionExpansionManager
-import net.spacetivity.survival.core.region.RegionManager
-import net.spacetivity.survival.core.region.entity.RegionSelectorManager
 import net.spacetivity.survival.core.translation.TranslatableText
 import net.spacetivity.survival.core.translation.TranslationManager
 import net.spacetivity.survival.core.translation.serialization.TranslatableTextTypeAdapter
@@ -43,9 +41,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
     lateinit var translationManager: TranslationManager
     lateinit var commandManager: CommandManager
     lateinit var chunkManager: ChunkManager
-    lateinit var regionSelectorManager: RegionSelectorManager
-    lateinit var regionManager: RegionManager
-    lateinit var regionExpansionManager: RegionExpansionManager
+    lateinit var landManager: LandManager
     lateinit var inventoryManager: InventoryManager
 
     init {
@@ -62,10 +58,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         this.translationManager = TranslationManager(this)
         this.commandManager = CommandManager()
         this.chunkManager = ChunkManager(this)
-        this.regionSelectorManager = RegionSelectorManager()
-        this.regionManager = RegionManager(this)
-        this.regionExpansionManager = RegionExpansionManager(this)
-        this.regionExpansionManager.handleInteractionChecking()
+        this.landManager = LandManager(this)
         this.inventoryManager = InventoryManager()
 
         val dbProperties: DatabaseFile = createOrLoadDatabaseProperties()
@@ -82,7 +75,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
             SchemaUtils.create(
                 MCLocManager.MCLocStorage,
                 ChunkManager.ChunkStorage,
-                RegionManager.RegionStorage,
+                LandManager.LandStorage,
                 InventoryManager.InventoryStorage
             )
         }
@@ -90,7 +83,7 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         server.pluginManager.registerEvents(ChunkManageListener(this), this)
         server.pluginManager.registerEvents(ItemClickListener(), this)
 
-        registerCommand(RegionCommand())
+        registerCommand(LandCommand())
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
             Bukkit.getOnlinePlayers().forEach { player -> inventoryManager.saveInventory(player) }
@@ -104,18 +97,14 @@ class SpaceSurvivalPlugin : JavaPlugin() {
                     if (chunkOwner == null || chunkOwner == player.uniqueId) NamedTextColor.GREEN else NamedTextColor.RED
                 player.sendActionBar(
                     Component.text(
-                        if (chunkOwner == null && regionManager.cachedClaimedRegions[player.uniqueId] == null) "Chunk is available for purchase."
-                        else if (chunkOwner == null && regionManager.cachedClaimedRegions[player.uniqueId] != null) "This is unclaimed land... Maybe some other player will settle down here!"
+                        if (chunkOwner == null && landManager.cachedClaimedLands[player.uniqueId] == null) "Chunk is available for purchase."
+                        else if (chunkOwner == null && landManager.cachedClaimedLands[player.uniqueId] != null) "This is unclaimed land... Maybe some other player will settle down here!"
                         else if (chunkOwner != null && chunkOwner == player.uniqueId) "Welcome home $ownerDisplayName"
                         else "Chunk is claimed by $ownerDisplayName."
                     ).color(color)
                 )
             }
         }, 0, 20)
-    }
-
-    override fun onDisable() {
-        regionExpansionManager.expandTask.cancel()
     }
 
     private fun createOrLoadDatabaseProperties(): DatabaseFile {

@@ -12,9 +12,8 @@ class ItemClickListener : Listener {
         if (event.item == null) return
         if (event.item?.itemMeta == null) return
 
-        if (SpaceSurvivalPlugin.clickableItems.map { itemBuilder -> itemBuilder.itemStack }.contains(event.item!!)) {
+        if (SpaceSurvivalPlugin.clickableItems.map { itemBuilder -> itemBuilder.itemStack }.contains(event.item!!))
             SpaceSurvivalPlugin.clickableItems.first { itemBuilder -> itemBuilder.itemStack == event.item!! }.action.invoke(event)
-        }
     }
 
 }

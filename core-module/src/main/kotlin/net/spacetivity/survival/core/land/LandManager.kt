@@ -1,4 +1,4 @@
-package net.spacetivity.survival.core.region
+package net.spacetivity.survival.core.land
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -15,22 +15,22 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class RegionManager(val plugin: SpaceSurvivalPlugin) {
+class LandManager(val plugin: SpaceSurvivalPlugin) {
 
-    val cachedClaimedRegions: MutableMap<UUID, ClaimedRegion> = mutableMapOf()
-    val table = RegionStorage
+    val cachedClaimedLands: MutableMap<UUID, Land> = mutableMapOf()
+    val table = LandStorage
 
-    fun isInRegion(player: Player): Boolean {
+    fun isInLand(player: Player): Boolean {
         return plugin.chunkManager.cachedClaimedChunks.containsValue(Pair(player.chunk.x, player.chunk.z))
     }
 
-    fun isRegionOwner(player: Player): Boolean {
+    fun isLandOwner(player: Player): Boolean {
         val chunkOwner = plugin.chunkManager.getChunkOwner(player.chunk)
         return chunkOwner == player.uniqueId
     }
 
-    fun initRegion(player: Player) {
-        if (cachedClaimedRegions[player.uniqueId] != null) {
+    fun initLand(player: Player) {
+        if (cachedClaimedLands[player.uniqueId] != null) {
             player.showTitle(Title.title(
                 Component.text("Warning!").color(NamedTextColor.DARK_RED),
                 Component.text("You already own a region...").color(NamedTextColor.RED)
@@ -48,23 +48,23 @@ class RegionManager(val plugin: SpaceSurvivalPlugin) {
 
         if (!result.isSuccess) return
 
-        val newRegion = ClaimedRegion(player.uniqueId, 1, true, mutableListOf(), mutableListOf())
-        registerRegion(newRegion)
+        val newLand = Land(player.uniqueId, 1, true, mutableListOf(), mutableListOf())
+        registerLand(newLand)
 
         player.sendMessage(Translator.getTranslation(TranslationKey.REGION_CREATED))
 
         transaction {
-            RegionStorage.insert {
-                it[ownerId] = newRegion.ownerId.toString()
-                it[chunksClaimed] = newRegion.chunksClaimed
-                it[open] = newRegion.open
-                it[trustedPlayers] = plugin.gson.toJson(newRegion.trustedPlayers)
-                it[locations] = plugin.gson.toJson(newRegion.locations)
+            LandStorage.insert {
+                it[ownerId] = newLand.ownerId.toString()
+                it[chunksClaimed] = newLand.chunksClaimed
+                it[open] = newLand.open
+                it[trustedPlayers] = plugin.gson.toJson(newLand.trustedPlayers)
+                it[locations] = plugin.gson.toJson(newLand.locations)
             }
         }
     }
 
-    fun unclaimRegion(ownerId: UUID) {
+    fun unclaimLand(ownerId: UUID) {
         //TODO: unprotect chests
         //TODO: remove all settings and set chunk settings to standard
 
@@ -72,32 +72,32 @@ class RegionManager(val plugin: SpaceSurvivalPlugin) {
         plugin.chunkManager.unclaimAllChunksFromPlayer(ownerId)
         
         // then delete the region object from the player
-        unregisterRegion(ownerId)
+        unregisterLand(ownerId)
         transaction {
-            RegionStorage.deleteWhere { RegionStorage.ownerId eq ownerId.toString() }
+            LandStorage.deleteWhere { LandStorage.ownerId eq ownerId.toString() }
         }
     }
 
-    fun loadRegion(ownerId: UUID) {
+    fun loadLand(ownerId: UUID) {
         transaction {
-            RegionStorage.select { RegionStorage.ownerId eq ownerId.toString() }.limit(1).firstOrNull()?.let { row ->
-                val region = ClaimedRegion(
+            LandStorage.select { LandStorage.ownerId eq ownerId.toString() }.limit(1).firstOrNull()?.let { row ->
+                val region = Land(
                     UUID.fromString(row[table.ownerId]),
                     row[table.chunksClaimed],
                     row[table.open],
                     plugin.gson.fromJson(row[table.trustedPlayers], Array<UUID>::class.java).toMutableList(),
                     plugin.gson.fromJson(row[table.locations], Array<MCLoc>::class.java).toMutableList()
                 )
-                cachedClaimedRegions.put(ownerId, region)
+                cachedClaimedLands.put(ownerId, region)
             }
         }
     }
 
-    fun registerRegion(newRegion: ClaimedRegion) = cachedClaimedRegions.putIfAbsent(newRegion.ownerId, newRegion)
-    fun unregisterRegion(ownerId: UUID) = cachedClaimedRegions.remove(ownerId)
-    fun getRegion(ownerId: UUID): ClaimedRegion? = cachedClaimedRegions[ownerId]
+    fun registerLand(newRegion: Land) = cachedClaimedLands.putIfAbsent(newRegion.ownerId, newRegion)
+    fun unregisterLand(ownerId: UUID) = cachedClaimedLands.remove(ownerId)
+    fun getLand(ownerId: UUID): Land? = cachedClaimedLands[ownerId]
 
-    object RegionStorage : Table("claimed_regions") {
+    object LandStorage : Table("claimed_lands") {
         val ownerId: Column<String> = varchar("ownerId", 50)
         val chunksClaimed: Column<Int> = integer("chunksClaimed")
         val open: Column<Boolean> = bool("open")
