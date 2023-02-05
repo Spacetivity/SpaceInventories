@@ -74,6 +74,10 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
     }
 
     fun getClaimedChunksByPlayer(ownerId: UUID): MutableList<Pair<Int, Int>> {
+        return cachedClaimedChunks.get(ownerId).toMutableList()
+    }
+
+    fun loadClaimedChunksByPlayer(ownerId: UUID): MutableList<Pair<Int, Int>> {
         val coordinatesOfClaimedChunks: MutableList<Pair<Int, Int>> = mutableListOf()
 
         transaction {
@@ -104,7 +108,7 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
 
         plugin.chunkManager.registerChunk(uniqueId, chunk.x, chunk.z)
 
-        val isOriginalChunk: Boolean = getClaimedChunksByPlayer(uniqueId).isEmpty()
+        val isOriginalChunk: Boolean = loadClaimedChunksByPlayer(uniqueId).isEmpty()
 
         transaction {
             table.insert {
@@ -136,7 +140,7 @@ class ChunkManager(val plugin: SpaceSurvivalPlugin) {
     }
 
     fun loadClaimedChunks(ownerId: UUID) =
-        getClaimedChunksByPlayer(ownerId).forEach { coords -> registerChunk(ownerId, coords.first, coords.second) }
+        loadClaimedChunksByPlayer(ownerId).forEach { coords -> registerChunk(ownerId, coords.first, coords.second) }
 
     fun registerChunk(ownerId: UUID, x: Int, z: Int) = cachedClaimedChunks.put(ownerId, Pair(x, z))
     fun unregisterChunk(ownerId: UUID, x: Int, z: Int) = cachedClaimedChunks.remove(ownerId, Pair(x, z))

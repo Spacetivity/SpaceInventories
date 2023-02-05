@@ -34,7 +34,10 @@ object LandUtils {
                         player.teleport(location)
                     }
 
-                    player.spawnParticle(Particle.REDSTONE, x.toDouble(), yLevel.toDouble(), minZ.toDouble(), 20, dustOptions)
+                    //player.spawnParticle(Particle.REDSTONE, x.toDouble(), yLevel.toDouble(), minZ.toDouble(), 20, dustOptions)
+
+                    player.spawnParticle(Particle.BLOCK_MARKER, x.toDouble(), yLevel.toDouble(), minZ.toDouble(), 1,
+                        Bukkit.createBlockData(Material.BARRIER))
 
                 }
 
@@ -45,7 +48,8 @@ object LandUtils {
             if (!chunkManager.getClaimedChunksByPlayer(player.uniqueId).contains(Pair(south.x, south.z))) {
 
                 for (x in minX .. minX + 16) {
-                    player.spawnParticle(Particle.REDSTONE, x.toDouble(), yLevel.toDouble(), minZ + 16.0, 20, dustOptions)
+                    player.spawnParticle(Particle.BLOCK_MARKER, x.toDouble(), yLevel.toDouble(), minZ + 16.0, 1,
+                        Bukkit.createBlockData(Material.BARRIER))
                 }
 
             }
@@ -56,7 +60,8 @@ object LandUtils {
 
                 for (z in minZ .. minZ + 16) {
 
-                    player.spawnParticle(Particle.REDSTONE, minX.toDouble(), yLevel.toDouble(), z.toDouble(), 20, dustOptions)
+                    player.spawnParticle(Particle.BLOCK_MARKER, minX.toDouble(), yLevel.toDouble(), z.toDouble(), 1,
+                        Bukkit.createBlockData(Material.BARRIER))
 
                 }
 
@@ -68,7 +73,8 @@ object LandUtils {
 
                 for (z in minZ .. minZ + 16) {
 
-                    player.spawnParticle(Particle.REDSTONE, minX + 16.0, yLevel.toDouble(), z.toDouble(), 20, dustOptions)
+                    player.spawnParticle(Particle.BLOCK_MARKER, minX + 16.0, yLevel.toDouble(), z.toDouble(), 1,
+                        Bukkit.createBlockData(Material.BARRIER))
 
                 }
 

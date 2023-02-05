@@ -29,7 +29,7 @@ class LandCommand : ICommandExecutor {
                 "show" -> {
 
                     Bukkit.getScheduler().runTaskTimer(SpaceSurvivalPlugin.instance, Runnable {
-                        LandUtils.showClaimedChunks(player, player.location.blockY + 10)
+                        LandUtils.showClaimedChunks(player, player.location.blockY)
                     }, 0L, 20L)
 
                 }
