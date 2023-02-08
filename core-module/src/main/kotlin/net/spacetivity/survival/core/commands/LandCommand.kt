@@ -9,10 +9,9 @@ import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.commandsystem.container.ICommandSender
 import net.spacetivity.survival.core.translation.TranslationKey
 import net.spacetivity.survival.core.translation.Translator
-import net.spacetivity.survival.core.utils.LandUtils
-import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import org.bukkit.entity.Player
+import org.bukkit.metadata.FixedMetadataValue
 
 @CommandProperties(name = "land", "survival.land")
 class LandCommand : ICommandExecutor {
@@ -28,9 +27,24 @@ class LandCommand : ICommandExecutor {
             when (args[0]) {
                 "show" -> {
 
-                    Bukkit.getScheduler().runTaskTimer(SpaceSurvivalPlugin.instance, Runnable {
-                        LandUtils.showClaimedChunks(player, player.location.blockY)
-                    }, 0L, 20L)
+                    // Bukkit.getScheduler().runTaskTimer(SpaceSurvivalPlugin.instance, Runnable {
+                    //    LandUtils.showClaimedChunks(player, player.location.blockY)
+                    // }, 0L, 20L)
+
+                    val wantsToSeeOutlines = player.hasMetadata("showLandOutlines")
+
+                    if (wantsToSeeOutlines)
+                        player.removeMetadata("showLandOutlines", SpaceSurvivalPlugin.instance)
+                    else
+                        player.setMetadata("showLandOutlines", FixedMetadataValue(SpaceSurvivalPlugin.instance, 1))
+
+                    player.sendMessage(
+                        if (wantsToSeeOutlines) {
+                            Component.text("You no longer see your lands border.", NamedTextColor.RED)
+                        } else {
+                            Component.text("You can now see your lands border.", NamedTextColor.GREEN)
+                        }
+                    )
 
                 }
 
@@ -85,8 +99,13 @@ class LandCommand : ICommandExecutor {
                     player.sendMessage(Component.text("Statistics about your region:", NamedTextColor.YELLOW))
                     player.sendMessage(Component.text("- Chunks claimed: ${region.chunksClaimed}", NamedTextColor.GRAY))
                     player.sendMessage(Component.text("- Owner: ${region.getOwner().name}", NamedTextColor.GRAY))
-                    player.sendMessage(Component.text("- Members: ${region.trustedPlayers.size} (/region members)", NamedTextColor.GRAY))
-                    
+                    player.sendMessage(
+                        Component.text(
+                            "- Members: ${region.trustedPlayers.size} (/region members)",
+                            NamedTextColor.GRAY
+                        )
+                    )
+
                 }
 
                 else -> sendUsage(sender)

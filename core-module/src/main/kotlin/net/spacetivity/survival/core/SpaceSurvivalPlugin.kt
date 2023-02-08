@@ -22,6 +22,7 @@ import net.spacetivity.survival.core.translation.TranslationManager
 import net.spacetivity.survival.core.translation.serialization.TranslatableTextTypeAdapter
 import net.spacetivity.survival.core.utils.FileUtils
 import net.spacetivity.survival.core.utils.ItemBuilder
+import net.spacetivity.survival.core.utils.LandUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -90,8 +91,16 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         }, 0, 20 * 60 * 5)
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
+
             Bukkit.getOnlinePlayers().forEach { player: Player? ->
-                val chunkOwner = chunkManager.getChunkOwner(player!!.chunk)
+
+                val wantsToSeeOutlines = player!!.hasMetadata("showLandOutlines")
+
+                if (wantsToSeeOutlines) {
+                    LandUtils.showClaimedChunks(player, player.location.blockY)
+                }
+
+                val chunkOwner = chunkManager.getChunkOwner(player.chunk)
                 val ownerDisplayName = if (chunkOwner == null) "unclaimed" else Bukkit.getOfflinePlayer(chunkOwner).name
                 val color: TextColor =
                     if (chunkOwner == null || chunkOwner == player.uniqueId) NamedTextColor.GREEN else NamedTextColor.RED
@@ -103,7 +112,9 @@ class SpaceSurvivalPlugin : JavaPlugin() {
                         else "Chunk is claimed by $ownerDisplayName."
                     ).color(color)
                 )
+
             }
+
         }, 0, 20)
     }
 
