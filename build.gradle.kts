@@ -7,7 +7,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.neptunsworld.core"
+    group = "net.spacetivity.core"
     version = "1.0-SNAPSHOT"
 
     repositories {
@@ -25,11 +25,18 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
-    apply(plugin = "java")
+
+    val exposedVersion: String by project
 
     dependencies {
         compileOnly("com.google.code.gson:gson:2.10.1")
         compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
+        implementation(group = "org.mariadb.jdbc", name = "mariadb-java-client", version = "3.0.7")
+        implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+        implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+        implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
+        implementation(group = "org.slf4j", name = "slf4j-simple", version = "1.7.25")
     }
 
     tasks.test {
