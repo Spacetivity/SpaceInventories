@@ -12,7 +12,6 @@ import net.spacetivity.survival.core.commandsystem.CommandManager
 import net.spacetivity.survival.core.commandsystem.container.CommandProperties
 import net.spacetivity.survival.core.commandsystem.container.ICommandExecutor
 import net.spacetivity.survival.core.database.DatabaseFile
-import net.spacetivity.survival.core.inventory.InventoryManager
 import net.spacetivity.survival.core.land.LandManager
 import net.spacetivity.survival.core.listener.ChunkManageListener
 import net.spacetivity.survival.core.listener.ItemClickListener
@@ -43,7 +42,6 @@ class SpaceSurvivalPlugin : JavaPlugin() {
     lateinit var commandManager: CommandManager
     lateinit var chunkManager: ChunkManager
     lateinit var landManager: LandManager
-    lateinit var inventoryManager: InventoryManager
 
     init {
         instance = this
@@ -60,7 +58,6 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         this.commandManager = CommandManager()
         this.chunkManager = ChunkManager(this)
         this.landManager = LandManager(this)
-        this.inventoryManager = InventoryManager()
 
         val dbProperties: DatabaseFile = createOrLoadDatabaseProperties()
 
@@ -77,7 +74,6 @@ class SpaceSurvivalPlugin : JavaPlugin() {
                 MCLocManager.MCLocStorage,
                 ChunkManager.ChunkStorage,
                 LandManager.LandStorage,
-                InventoryManager.InventoryStorage
             )
         }
 
@@ -85,10 +81,6 @@ class SpaceSurvivalPlugin : JavaPlugin() {
         server.pluginManager.registerEvents(ItemClickListener(), this)
 
         registerCommand(LandCommand())
-
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
-            Bukkit.getOnlinePlayers().forEach { player -> inventoryManager.saveInventory(player) }
-        }, 0, 20 * 60 * 5)
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {
 

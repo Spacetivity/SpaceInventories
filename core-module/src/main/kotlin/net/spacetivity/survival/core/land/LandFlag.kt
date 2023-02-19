@@ -1,0 +1,46 @@
+package net.spacetivity.survival.core.land
+
+enum class LandFlag(flagType: FlagType) {
+
+    BLOCK_BREAK(FlagType.ROLE_FLAG),
+    BLOCK_PLACE(FlagType.ROLE_FLAG),
+    ATTACK_PLAYER(FlagType.ROLE_FLAG),
+    ATTACK_ANIMAL(FlagType.ROLE_FLAG),
+    ATTACK_MONSTER(FlagType.ROLE_FLAG),
+
+    INTERACT_CHEST(FlagType.ROLE_FLAG),
+    INTERACT_OVEN(FlagType.ROLE_FLAG),
+    INTERACT_DOOR(FlagType.ROLE_FLAG),
+    INTERACT_TRAPDOOR(FlagType.ROLE_FLAG),
+    INTERACT_VILLAGER(FlagType.ROLE_FLAG),
+
+    FLY(FlagType.ROLE_FLAG),
+    FLY_WITH_ELYTRA(FlagType.ROLE_FLAG),
+    SPAWN_TELEPORT(FlagType.ROLE_FLAG),
+    LAND_ENTER(FlagType.ROLE_FLAG),
+    VEHICLE_USE(FlagType.ROLE_FLAG),
+    ITEM_PICKUP(FlagType.ROLE_FLAG),
+    ENDER_PEARL(FlagType.ROLE_FLAG),
+    TRAMPLE_FARMLAND(FlagType.ROLE_FLAG),
+    HARVEST(FlagType.ROLE_FLAG),
+    PLANT(FlagType.ROLE_FLAG),
+    SHEAR(FlagType.ROLE_FLAG),
+
+    ENTITY_GRIEFING(FlagType.LAND_FLAG),
+    TNT_GRIEFING(FlagType.LAND_FLAG),
+    MONSTER_SPAWN(FlagType.LAND_FLAG),
+    PHANTOM_SPAWN(FlagType.LAND_FLAG),
+    ANIMAL_SPAWN(FlagType.LAND_FLAG),
+    WATERFLOW_ALLOW(FlagType.LAND_FLAG),
+    TITLE_HIDE(FlagType.LAND_FLAG),
+    REQUEST_ACCEPT(FlagType.LAND_FLAG),
+    FIRE_SPREAD(FlagType.LAND_FLAG),
+    LEAF_DECAY(FlagType.LAND_FLAG),
+    PLANT_GROWTH(FlagType.LAND_FLAG),
+    SNOW_MELT(FlagType.LAND_FLAG);
+
+    enum class FlagType {
+        LAND_FLAG,
+        ROLE_FLAG
+    }
+}

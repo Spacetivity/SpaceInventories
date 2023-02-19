@@ -4,7 +4,6 @@ import net.spacetivity.survival.core.SpaceSurvivalPlugin
 import net.spacetivity.survival.core.translation.TranslationKey
 import net.spacetivity.survival.core.translation.Translator
 import net.spacetivity.survival.core.utils.ItemBuilder
-import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.EventHandler
@@ -20,13 +19,8 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
 
-        plugin.inventoryManager.loadInventory(player)
         plugin.chunkManager.loadClaimedChunks(player.uniqueId)
         plugin.landManager.loadLand(player.uniqueId)
-
-        val originalChunk = plugin.chunkManager.getOriginalChunk(player.uniqueId)
-
-        player.teleport(Location(player.world, originalChunk!!.first * 16.0, 100.0, originalChunk.second * 16.0))
 
         if (plugin.landManager.getLand(player.uniqueId) == null) player.inventory.setItem(
             4, ItemBuilder(Material.SCULK_CATALYST)
@@ -47,7 +41,6 @@ class ChunkManageListener(private var plugin: SpaceSurvivalPlugin) : Listener {
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
         val player = event.player
-        plugin.inventoryManager.saveInventory(player)
         plugin.chunkManager.unregisterRegisteredChunks(player.uniqueId)
         plugin.landManager.unregisterLand(player.uniqueId)
     }

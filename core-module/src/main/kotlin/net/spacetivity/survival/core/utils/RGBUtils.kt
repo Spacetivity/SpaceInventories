@@ -4,6 +4,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 
 object RGBUtils {
+
     fun toRGBCode(color: NamedTextColor): Triple<Int, Int, Int> {
         val textColor = TextColor.color(color.asHSV())
         return Triple(textColor.red(), textColor.green(), textColor.blue())

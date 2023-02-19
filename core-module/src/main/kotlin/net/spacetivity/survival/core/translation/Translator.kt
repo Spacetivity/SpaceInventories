@@ -8,8 +8,7 @@ import org.bukkit.entity.Player
 
 object Translator {
 
-    private val cachedTranslations: MutableList<TranslatableText> =
-        SpaceSurvivalPlugin.instance.translationManager.cachedTranslations
+    private val cachedTranslations: MutableList<TranslatableText> = SpaceSurvivalPlugin.instance.translationManager.cachedTranslations
 
     fun findRawPrefix(globalPrefix: Boolean): String {
         val result: String =
