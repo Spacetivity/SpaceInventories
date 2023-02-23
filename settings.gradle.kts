@@ -1,4 +1,3 @@
-
-rootProject.name = "SpaceSurvival"
-include("core-module")
+rootProject.name = "MultiModulePlugin"
+include("test-module")
 include("core-module")

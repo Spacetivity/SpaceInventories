@@ -7,7 +7,7 @@ plugins {
 }
 
 allprojects {
-    group = "net.spacetivity.core"
+    group = "net.spacetivity.template.multiplugin"
     version = "1.0-SNAPSHOT"
 
     repositories {
@@ -29,14 +29,18 @@ subprojects {
     val exposedVersion: String by project
 
     dependencies {
-        compileOnly("com.google.code.gson:gson:2.10.1")
-        compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
-        implementation(group = "org.mariadb.jdbc", name = "mariadb-java-client", version = "3.0.7")
-        implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-        implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-        implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-        implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
-        implementation(group = "org.slf4j", name = "slf4j-simple", version = "1.7.25")
+		compileOnly("com.google.code.gson:gson:2.10.1")
+		compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
+
+		implementation(group = "org.mariadb.jdbc", name = "mariadb-java-client", version = "3.0.7")
+
+		implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+		implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+		implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+
+		implementation(group = "org.slf4j", name = "slf4j-api", version = "1.7.25")
+		implementation(group = "org.slf4j", name = "slf4j-simple", version = "1.7.25")
+		implementation(kotlin("stdlib-jdk8"))
     }
 
     tasks.test {

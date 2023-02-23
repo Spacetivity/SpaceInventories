@@ -21,7 +21,7 @@ compileTestKotlin.kotlinOptions {
 tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath)
-    archiveBaseName.set("Core-Module")
+    dependsOn(configurations.runtimeClasspath, ":core-module")
+    archiveBaseName.set("Test-Module")
     from({ configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) } })
 }
