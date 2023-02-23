@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-
+    compileOnly(project(":core-module"))
 }
 
 val compileKotlin: KotlinCompile by tasks
@@ -21,7 +21,8 @@ compileTestKotlin.kotlinOptions {
 tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath, ":core-module")
+
+    dependsOn(configurations.runtimeClasspath)
     archiveBaseName.set("Test-Module")
     from({ configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) } })
 }
