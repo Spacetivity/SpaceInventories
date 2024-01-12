@@ -1,3 +1,3 @@
-rootProject.name = "MultiModulePlugin"
-include("test-module")
-include("core-module")
+rootProject.name = "SpaceInventories"
+include("inventory-api")
+include("inventory-bukkit")
