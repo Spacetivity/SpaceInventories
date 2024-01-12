@@ -28,19 +28,18 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 @InventoryProperties(id = "example_inv", rows = 3, columns = 9, permission = "test.open")
-public class ExampleInventory implements InventoryProvider {
+class ExampleInventory : InventoryProvider {
 
-    @Override
-    public void init(Player player, InventoryController controller) {
+    override fun init(player: Player, controller: InventoryController) {
         // Add placeholders
-        controller.placeholder(1, 1, Material.DIAMOND_SWORD);
-        
+        controller.placeholder(1, 1, Material.DIAMOND_SWORD)
+
         // Add an interactive item
-        controller.setItem(2, 4, new InteractiveItem(
-                new ItemStack(Material.APPLE),
-                (pos, item, event) -> player.sendMessage("You clicked the apple!")
-        ));
+        controller.setItem(2, 4, InteractiveItem(ItemStack(Material.APPLE)) { pos, item, event ->
+                player.sendMessage("You clicked the apple!")
+        })
     }
+    
 }
 ```
 
@@ -70,17 +69,18 @@ To create a custom inventory, follow these steps:
 
 1. **Create a Class:** Start by creating a Java class for your inventory and annotate it with `@InventoryProperties`.
 
-    ```java
+    ```kotlin
     @InventoryProperties(id = "example_inv", rows = 3, columns = 9, permission = "test.open")
-    public class ExampleInventory implements InventoryProvider {
+    class ExampleInventory : InventoryProvider {
+    
+    }
     ```
 
 2. **Implement Interface:** Implement the `InventoryProvider` interface and override the `init` function to build your inventory.
 
-    ```java
-    @Override
-    public void init(Player player, InventoryController controller) {
-        // Customize your inventory here
+    ```kotlin
+    override fun init(player: Player, controller: InventoryController) {
+    // Customize your inventory here
     }
     ```
 
@@ -90,17 +90,14 @@ Use the `InteractiveItem` class to create items that trigger custom actions when
 
 - **Constructor:** The constructor takes an `ItemStack` and an action to be performed when the item is clicked.
 
-    ```java
-    new InteractiveItem(
-        new ItemStack(Material.APPLE),
-        (pos, item, event) -> player.sendMessage("You clicked the apple!")
-    )
+    ```kotlin
+    InteractiveItem(ItemStack(Material.APPLE)) { pos, item, event -> player.sendMessage("You clicked the apple!") }
     ```
 
 - **Updating Items:** You can update items dynamically using the `update` method. For instance, change the item type or display name.
 
-    ```java
-    item.update(controller, InteractiveItem.Modification.TYPE, Material.DIAMOND);
+    ```kotlin
+    item.update(controller, InteractiveItem.Modification.TYPE, Material.DIAMOND)
     ```
 
 ### Pagination
@@ -109,37 +106,37 @@ The SpaceInventory API provides a powerful pagination system for large inventori
 
 1. **Create a Pagination:**
 
-    ```java
-    InventoryPagination pagination = controller.createPagination();
+    ```kotlin
+    val pagination: Pagination = controller.createPagination()
     ```
 
 2. **Distribute Items:**
 
-    ```java
-    pagination.distributeItems(myItemList);
+    ```kotlin
+    pagination.distributeItems(myItemList)
     ```
 
 3. **Navigate Through Pages:**
 
-    ```java
-    pagination.toNextPage();
-    pagination.toPreviousPage();
-    pagination.toFirstPage();
-    pagination.toLastPage();
+    ```kotlin
+    pagination.toNextPage()
+    pagination.toPreviousPage()
+    pagination.toFirstPage()
+    pagination.toLastPage()
     ```
 
 4. **Customize Pagination:**
 
     - Set the items per page limit.
 
-        ```java
-        pagination.limitItemsPerPage(9);
+        ```kotlin
+        pagination.limitItemsPerPage(9)
         ```
 
     - Refresh the current page.
 
-        ```java
-        pagination.refreshPage();
+        ```kotlin
+        pagination.refreshPage()
         ```
 
 ### Annotations
