@@ -49,7 +49,7 @@ class InventoryPlayerListener(private val plugin: SpaceInventoryBukkit) : Listen
         val player: Player = event.player as Player
 
         if (!player.hasMetadata("open-inventory")) return
-        if (validateInventory(player, event.view.title())) return
+        if (!validateInventory(player, event.view.title())) return
 
         val inventory: SpaceInventory =
             inventoryHandler.getInventory(player, getOpenInventoryName(player)) ?: return

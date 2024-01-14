@@ -5,6 +5,7 @@ import net.spacetivity.inventory.api.SpaceInventoryProvider
 import net.spacetivity.inventory.api.inventory.InventoryController
 import net.spacetivity.inventory.api.pagination.InventoryPagination
 import net.spacetivity.inventory.api.utils.MathUtils
+import org.apache.logging.log4j.util.TriConsumer
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -15,11 +16,11 @@ import org.bukkit.inventory.meta.ItemMeta
 @Suppress("UNCHECKED_CAST")
 class InteractiveItem(
     val item: ItemStack,
-    val action: (InventoryPosition, InteractiveItem, InventoryClickEvent) -> Unit
+    val action: TriConsumer<InventoryPosition, InteractiveItem, InventoryClickEvent>?
 ) {
 
     fun runAction(position: InventoryPosition, interactiveItem: InteractiveItem, event: InventoryClickEvent) {
-        action.invoke(position, interactiveItem, event)
+        action?.accept(position, interactiveItem, event)
     }
 
     fun update(controller: InventoryController, modification: Modification, vararg values: Any) {
@@ -116,16 +117,18 @@ class InteractiveItem(
             }
         }
 
+
         fun of(item: ItemStack): InteractiveItem {
             return InteractiveItem(item) { _: InventoryPosition, _: InteractiveItem, _: InventoryClickEvent -> }
         }
 
-        fun of(
-            item: ItemStack,
-            action: (InventoryPosition, InteractiveItem, InventoryClickEvent) -> Unit
-        ): InteractiveItem {
+        fun of(item: ItemStack, action: TriConsumer<InventoryPosition, InteractiveItem, InventoryClickEvent>): InteractiveItem {
             return InteractiveItem(item, action)
         }
+
+//        fun of(item: ItemStack, action: (InventoryPosition, InteractiveItem, InventoryClickEvent) -> Unit): InteractiveItem {
+//            return InteractiveItem(item, action)
+//        }
 
         fun of(item: ItemStack, command: String): InteractiveItem {
             return InteractiveItem(item) { _, _, event ->

@@ -54,7 +54,7 @@ class InventoryHandlerImpl : InventoryHandler {
             invTitle = title
         }
 
-        val rawInventory = Bukkit.createInventory(holder, controller.getRows()!! * controller.getColumns()!!, invTitle)
+        val rawInventory = Bukkit.createInventory(holder, controller.getRows() * controller.getColumns(), invTitle)
 
         controller.rawInventory = rawInventory
         controller.constructEmptyContent()
