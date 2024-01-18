@@ -7,9 +7,7 @@ The SpaceInventory API is a powerful inventory management system for Bukkit/Spig
 To integrate the SpaceInventory API into your Bukkit/Spigot project using Gradle, add the following dependency to your `build.gradle` file:
 
 ```groovy
-dependencies {
-    implementation 'net.spacetivity:space-inventory-api:1.0.0' // Replace with the latest version
-}
+SOON...
 ```
 
 ## Getting Started
