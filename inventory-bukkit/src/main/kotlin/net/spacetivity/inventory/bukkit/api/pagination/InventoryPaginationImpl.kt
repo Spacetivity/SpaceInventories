@@ -13,9 +13,8 @@ class InventoryPaginationImpl(private val controller: InventoryController) : Inv
     override val positions: MutableList<InventoryPosition> = mutableListOf()
     override val items: Multimap<Int, InteractiveItem> = ArrayListMultimap.create()
 
-    var currentPageId: Int = 0
-    var itemsPerPage: Int = 9
-
+    private var currentPageId: Int = 0
+    private var itemsPerPage: Int = 9
 
     override fun getLastPageId(): Int {
         val pageIds = items.keySet().stream().toList()
@@ -64,8 +63,8 @@ class InventoryPaginationImpl(private val controller: InventoryController) : Inv
     }
 
     override fun setItemField(startRow: Int, startColumn: Int, endRow: Int, endColumn: Int) {
-        val numRows = controller.getRows()!!
-        val numColumns = controller.getColumns()!!
+        val numRows = controller.getRows()
+        val numColumns = controller.getColumns()
 
         for (row in startRow until numRows.coerceAtMost(endRow + 1)) {
             for (column in startColumn until numColumns.coerceAtMost(endColumn + 1)) {
