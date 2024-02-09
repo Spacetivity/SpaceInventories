@@ -28,7 +28,7 @@ subprojects {
 
     dependencies {
 		compileOnly("com.google.code.gson:gson:2.10.1")
-		compileOnly("io.papermc.paper:paper-api:1.19.3-R0.1-SNAPSHOT")
+		compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     }
 
 	tasks.test {
