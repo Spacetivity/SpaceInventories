@@ -12,6 +12,8 @@ interface InventoryPagination {
     val positions: List<Any>
     val items: Multimap<Int, InteractiveItem>
 
+    fun getPaginationItems(): List<InteractiveItem> = this.items.entries().mapNotNull { it.value }
+
     fun getLastPageId(): Int
     fun getPageAmount(): Int
 
