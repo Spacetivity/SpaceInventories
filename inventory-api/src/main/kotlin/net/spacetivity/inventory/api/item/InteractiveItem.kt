@@ -7,17 +7,23 @@ import net.spacetivity.inventory.api.pagination.InventoryPagination
 import net.spacetivity.inventory.api.utils.MathUtils
 import org.apache.logging.log4j.util.TriConsumer
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataContainer
+import org.bukkit.persistence.PersistentDataType
+import java.util.*
 
 @Suppress("UNCHECKED_CAST")
 class InteractiveItem(
     val item: ItemStack,
-    val action: TriConsumer<InventoryPosition, InteractiveItem, InventoryClickEvent>?
+    private val action: TriConsumer<InventoryPosition, InteractiveItem, InventoryClickEvent>?
 ) {
+
+    private val itemId = UUID.randomUUID().toString().split("-")[0]
 
     fun runAction(position: InventoryPosition, interactiveItem: InteractiveItem, event: InventoryClickEvent) {
         action?.accept(position, interactiveItem, event)
@@ -26,28 +32,36 @@ class InteractiveItem(
     fun update(controller: InventoryController, modification: Modification, vararg values: Any) {
         if (values.size > 1) throw UnsupportedOperationException("There are no more than one value allowed! Current size: " + values.size)
 
-        val inventoryPosition: InventoryPosition = controller.getPositionOfItem(this)
-            ?: throw NullPointerException("Item cannot be updated! Position is null...")
+        val inventoryPosition: InventoryPosition? = controller.getPositionOfItem(this)
+        val modifiableItem: ItemStack
+        var extraItem: ItemStack? = null
 
-        val slot: Int = MathUtils.positionToSlot(inventoryPosition, controller.getColumns())
-        val rawInventory: Inventory = controller.rawInventory!!
+        if (inventoryPosition != null) {
+            val slot: Int = MathUtils.positionToSlot(inventoryPosition, controller.getColumns())
+            val rawInventory: Inventory = controller.rawInventory!!
+            modifiableItem = rawInventory.getItem(slot) ?: this.item
+        } else {
+            modifiableItem = this.item
+        }
 
-        val modifiableItem: ItemStack = rawInventory.getItem(slot)
-            ?: throw NullPointerException("Item cannot be updated! It is null...")
+        if (controller.pagination != null)
+            extraItem = controller.pagination!!.items.values().find { it.itemId == this.itemId }!!.item
 
-        val newValue = values[0]
+        val newValue: Any = values[0]
 
         when (modification) {
             Modification.TYPE -> {
                 if (newValue !is Material) throw UnsupportedOperationException("'newValue' is not a Material!")
-
                 modifiableItem.type = newValue
+
+                extraItem?.type = newValue
             }
 
             Modification.DISPLAY_NAME -> {
                 if (newValue !is Component) throw UnsupportedOperationException("'newValue' is not a Component!")
-
                 modifiableItem.editMeta { itemMeta: ItemMeta -> itemMeta.displayName(newValue) }
+
+                extraItem?.editMeta { itemMeta: ItemMeta -> itemMeta.displayName(newValue) }
             }
 
             Modification.LORE -> {
@@ -59,23 +73,25 @@ class InteractiveItem(
                     val lore = newValue.toMutableList()
                     itemMeta.lore(lore as MutableList<Component>)
                 }
+
+                extraItem?.editMeta { itemMeta ->
+                    val lore = newValue.toMutableList()
+                    itemMeta.lore(lore as MutableList<Component>)
+                }
             }
 
             Modification.AMOUNT -> {
                 if (newValue !is Int) throw UnsupportedOperationException("'newValue' is not an Integer!")
-
                 modifiableItem.amount = newValue
             }
 
             Modification.INCREMENT -> {
                 if (newValue !is Int) throw UnsupportedOperationException("'newValue' is not an Integer!")
-
                 modifiableItem.amount += newValue
             }
 
             Modification.ENCHANTMENTS -> {
                 if (newValue !is ItemEnchantment) throw UnsupportedOperationException("'newValue' is not an ItemEnchantment!")
-
                 newValue.performAction(modifiableItem)
             }
 
@@ -93,7 +109,8 @@ class InteractiveItem(
 
     companion object {
         fun placeholder(material: Material): InteractiveItem {
-            return of(makeItemStack(material))
+            val itemId = UUID.randomUUID().toString().split("-")[0]
+            return InteractiveItem(makeItemStack(material, itemId)) { _, _, _ -> }
         }
 
         fun nextPage(item: ItemStack, pagination: InventoryPagination): InteractiveItem {
@@ -126,10 +143,6 @@ class InteractiveItem(
             return InteractiveItem(item, action)
         }
 
-//        fun of(item: ItemStack, action: (InventoryPosition, InteractiveItem, InventoryClickEvent) -> Unit): InteractiveItem {
-//            return InteractiveItem(item, action)
-//        }
-
         fun of(item: ItemStack, command: String): InteractiveItem {
             return InteractiveItem(item) { _, _, event ->
                 val player: Player = event.whoClicked as Player
@@ -137,10 +150,18 @@ class InteractiveItem(
             }
         }
 
-        private fun makeItemStack(material: Material): ItemStack {
+        private fun makeItemStack(material: Material, itemId: String): ItemStack {
             val itemStack = ItemStack(material)
             val itemMeta: ItemMeta = itemStack.itemMeta
             itemMeta.displayName(Component.text(" "))
+
+            val namespacedKey = NamespacedKey("item", "itemid")
+            val dataContainer: PersistentDataContainer = itemMeta.persistentDataContainer
+            if (!dataContainer.has(namespacedKey, PersistentDataType.STRING)) {
+                dataContainer.set(namespacedKey, PersistentDataType.STRING, itemId)
+                itemStack.setItemMeta(itemMeta)
+            }
+
             itemStack.setItemMeta(itemMeta)
             return itemStack
         }
