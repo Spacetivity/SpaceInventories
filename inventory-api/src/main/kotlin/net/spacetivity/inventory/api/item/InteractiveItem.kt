@@ -8,6 +8,7 @@ import net.spacetivity.inventory.api.utils.MathUtils
 import org.apache.logging.log4j.util.TriConsumer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
@@ -83,18 +84,43 @@ class InteractiveItem(
             Modification.AMOUNT -> {
                 if (newValue !is Int) throw UnsupportedOperationException("'newValue' is not an Integer!")
                 modifiableItem.amount = newValue
+
+                if (extraItem != null) extraItem.amount = newValue
             }
 
             Modification.INCREMENT -> {
                 if (newValue !is Int) throw UnsupportedOperationException("'newValue' is not an Integer!")
                 modifiableItem.amount += newValue
+
+                if (extraItem != null) extraItem.amount += newValue
             }
 
             Modification.ENCHANTMENTS -> {
                 if (newValue !is ItemEnchantment) throw UnsupportedOperationException("'newValue' is not an ItemEnchantment!")
                 newValue.performAction(modifiableItem)
+
+                if (extraItem != null) newValue.performAction(extraItem)
             }
 
+            Modification.GLOWING -> {
+                if (newValue !is Boolean) throw UnsupportedOperationException("'newValue' is not an Boolean!")
+
+                if (newValue) {
+                    modifiableItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                    extraItem?.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                } else {
+                    modifiableItem.editMeta {
+                        it.enchants.map { e -> e.key }.forEach { n -> println(n.key.key) }
+                        it.removeEnchantments()
+                    }
+
+                    extraItem?.editMeta {
+                        it.enchants.map { e -> e.key }.forEach { n -> println(n.key.key) }
+                        it.removeEnchantments()
+                    }
+                }
+
+            }
         }
     }
 
@@ -104,7 +130,8 @@ class InteractiveItem(
         LORE,
         AMOUNT,
         INCREMENT,
-        ENCHANTMENTS
+        ENCHANTMENTS,
+        GLOWING;
     }
 
     companion object {
