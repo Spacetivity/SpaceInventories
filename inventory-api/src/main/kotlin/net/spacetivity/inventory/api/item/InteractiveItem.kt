@@ -109,17 +109,9 @@ class InteractiveItem(
                     modifiableItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
                     extraItem?.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
                 } else {
-                    modifiableItem.editMeta {
-                        it.enchants.map { e -> e.key }.forEach { n -> println(n.key.key) }
-                        it.removeEnchantments()
-                    }
-
-                    extraItem?.editMeta {
-                        it.enchants.map { e -> e.key }.forEach { n -> println(n.key.key) }
-                        it.removeEnchantments()
-                    }
+                    modifiableItem.editMeta { it.removeEnchantments() }
+                    extraItem?.editMeta { it.removeEnchantments() }
                 }
-
             }
         }
     }
