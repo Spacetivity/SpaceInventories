@@ -7,7 +7,7 @@ import net.spacetivity.inventory.bukkit.api.inventory.InventoryHandlerImpl
 import net.spacetivity.inventory.bukkit.api.inventory.SpaceConfirmationInventory
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.util.*
+import java.util.function.Consumer
 
 class InventoryApiImpl : InventoryApi {
 
@@ -17,15 +17,13 @@ class InventoryApiImpl : InventoryApi {
         holder: Player,
         title: Component,
         displayItem: ItemStack,
-        onAccept: () -> Unit,
-        onDeny: () -> Unit
+        onAccept: Consumer<ItemStack>,
+        onDeny: Consumer<ItemStack>
     ) {
-        val key = "confirmation-inv${UUID.randomUUID().toString().split("-")[0]}"
-
         inventoryHandler.openStaticInventory(
             holder,
             title,
-            SpaceConfirmationInventory(key, title, displayItem, onAccept, onDeny),
+            SpaceConfirmationInventory(displayItem, onAccept, onDeny),
             true
         )
     }
