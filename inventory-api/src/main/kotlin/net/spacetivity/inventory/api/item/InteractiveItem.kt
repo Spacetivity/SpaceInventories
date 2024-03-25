@@ -46,7 +46,7 @@ class InteractiveItem(
         }
 
         if (controller.pagination != null)
-            extraItem = controller.pagination!!.items.values().find { it.itemId == this.itemId }!!.item
+            extraItem = controller.pagination!!.items.values().find { it.itemId == this.itemId }?.item
 
         val newValue: Any = values[0]
 
