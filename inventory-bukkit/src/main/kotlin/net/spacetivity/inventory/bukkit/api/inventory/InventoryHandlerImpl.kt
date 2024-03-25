@@ -42,21 +42,7 @@ class InventoryHandlerImpl : InventoryHandler {
         if (!permission.equals("", true) && !holder.hasPermission(permission)) return null
 
         val controller: InventoryController = InventoryControllerImpl(provider)
-        val invTitle: Component
-
-//        if (provider is SpaceConfirmationInventory) {
-//            controller.overriddenInventoryId = provider.inventoryId
-//            controller.overriddenRows = 3
-//            controller.overriddenColumns = 9
-//            controller.isCloseable = true
-//            invTitle = provider.title
-//        } else {
-//            invTitle = title
-//        }
-
-        invTitle = title
-
-        val rawInventory = Bukkit.createInventory(holder, controller.getRows() * controller.getColumns(), invTitle)
+        val rawInventory = Bukkit.createInventory(holder, controller.getRows() * controller.getColumns(), title)
 
         controller.rawInventory = rawInventory
         controller.constructEmptyContent()
@@ -65,7 +51,7 @@ class InventoryHandlerImpl : InventoryHandler {
 
         controller.updateRawInventory()
 
-        val inventory: SpaceInventory = SpaceInventoryImpl(provider, invTitle, controller, staticInventory)
+        val inventory: SpaceInventory = SpaceInventoryImpl(provider, title, controller, staticInventory)
 
         inventories.put(holder, inventory)
         return inventory
