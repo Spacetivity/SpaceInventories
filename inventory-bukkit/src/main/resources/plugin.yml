@@ -1,6 +1,6 @@
 name: SpaceInventories
 version: '1.0-RELEASE'
-main: net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
+main: world.neptuns.inventory.bukkit.SpaceInventoryBukkit
 api-version: "1.20"
 authors:
   - FallenBreak

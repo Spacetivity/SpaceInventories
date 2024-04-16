@@ -1,28 +1,23 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.23"
 }
 
 dependencies {
 
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "17"
+tasks.test {
+    useJUnitPlatform()
 }
 
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "17"
+kotlin {
+    jvmToolchain(17)
 }
 
 tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(sourceSets.main.get().output)
     dependsOn(configurations.runtimeClasspath)
-    archiveBaseName.set("SpaceInventoryApi")
     from({ configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) } })
 }
 
@@ -42,9 +37,9 @@ publishing {
     repositories {
         maven {
             val repositoryUrl = if (project.version.toString().endsWith("SNAPSHOT")) {
-                "https://nexus.spacetivity.net/repository/maven-snapshots/"
+                "https://nexus.neptuns.world/repository/maven-snapshots/"
             } else {
-                "https://nexus.spacetivity.net/repository/maven-releases/"
+                "https://nexus.neptuns.world/repository/maven-releases/"
             }
 
             url = uri(repositoryUrl)
