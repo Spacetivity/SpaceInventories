@@ -1,18 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    java
-    `maven-publish`
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.23"
 }
 
 allprojects {
-    group = "net.spacetivity.inventory"
+    group = "world.neptuns.inventory"
     version = "1.0-SNAPSHOT"
 
     repositories {
         maven {
-            url = uri("https://nexus.spacetivity.net/repository/maven-public/")
+            url = uri("https://nexus.neptuns.world/repository/maven-public/")
             credentials {
                 username = property("nexusUsername") as String
                 password = property("nexusPassword") as String
@@ -30,12 +28,12 @@ subprojects {
 		compileOnly("com.google.code.gson:gson:2.10.1")
 		compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     }
+}
 
-	tasks.test {
-		useJUnitPlatform()
-	}
+kotlin {
+    jvmToolchain(17)
+}
 
-	tasks.withType<KotlinCompile> {
-		kotlinOptions.jvmTarget = "17"
-	}
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
 }
