@@ -107,8 +107,8 @@ class InteractiveItem(
                 if (newValue !is Boolean) throw UnsupportedOperationException("'newValue' is not an Boolean!")
 
                 if (newValue) {
-                    modifiableItem.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
-                    extraItem?.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                    modifiableItem.addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
+                    extraItem?.addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
                 } else {
                     modifiableItem.editMeta { it.removeEnchantments() }
                     extraItem?.editMeta { it.removeEnchantments() }
