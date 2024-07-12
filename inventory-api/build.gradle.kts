@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm")
 }
 
 dependencies {
@@ -11,14 +11,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
-}
-
-tasks.withType<Jar> {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath)
-    from({ configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) } })
+    jvmToolchain(libs.versions.java.get().toInt())
 }
 
 task("sourcesJar", type = Jar::class) {

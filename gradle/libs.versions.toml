@@ -1,0 +1,9 @@
+[versions]
+java = "21"
+
+gson = "2.10.1"
+paper-api = "1.21-R0.1-SNAPSHOT"
+
+[libraries]
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper-api" }

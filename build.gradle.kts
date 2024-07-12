@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "1.9.24"
 }
 
 allprojects {
@@ -18,22 +18,28 @@ allprojects {
         }
         mavenCentral()
     }
-}
 
-subprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
 
-    dependencies {
-		compileOnly("com.google.code.gson:gson:2.10.1")
-		compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    afterEvaluate {
+        dependencies {
+            compileOnly(libs.gson)
+            compileOnly(libs.paper.api)
+        }
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang"
     }
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(libs.versions.java.get().toInt())
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = libs.versions.java.get()
 }
