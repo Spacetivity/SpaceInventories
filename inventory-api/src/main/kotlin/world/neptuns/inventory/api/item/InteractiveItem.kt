@@ -1,7 +1,6 @@
 package world.neptuns.inventory.api.item
 
 import net.kyori.adventure.text.Component
-import org.apache.logging.log4j.util.TriConsumer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
@@ -12,31 +11,41 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
-import world.neptuns.inventory.api.SpaceInventoryProvider
+import world.neptuns.inventory.api.extension.getInventory
 import world.neptuns.inventory.api.inventory.InventoryController
 import world.neptuns.inventory.api.pagination.InventoryPagination
 import world.neptuns.inventory.api.utils.MathUtils
+import java.time.Instant
 import java.util.*
 
-@Suppress("UNCHECKED_CAST")
 class InteractiveItem(
-    val item: ItemStack,
-    private val action: TriConsumer<InventoryPosition, InteractiveItem, InventoryClickEvent>?
+    var item: ItemStack,
+    private val action: ((InventoryPos, InteractiveItem, InventoryClickEvent) -> Unit)?
 ) {
 
     private val itemId = UUID.randomUUID().toString().split("-")[0]
+    private var lastClickTime: Instant = Instant.EPOCH
+    private var cooldownMillis: Long = 150
 
-    fun runAction(position: InventoryPosition, interactiveItem: InteractiveItem, event: InventoryClickEvent) {
-        action?.accept(position, interactiveItem, event)
+    fun runAction(position: InventoryPos, interactiveItem: InteractiveItem, event: InventoryClickEvent) {
+        val now = Instant.now()
+
+        if (now.toEpochMilli() - Instant.EPOCH.toEpochMilli() < cooldownMillis) {
+            event.isCancelled = true
+            return
+        }
+
+        lastClickTime = now
+        action?.invoke(position, interactiveItem, event)
     }
 
-    @Suppress("DEPRECATION")
+    @Suppress("UNCHECKED_CAST")
     fun update(controller: InventoryController, modification: Modification, vararg values: Any) {
         if (values.size > 1) throw UnsupportedOperationException("There are no more than one value allowed! Current size: " + values.size)
 
-        val inventoryPosition: InventoryPosition? = controller.getPositionOfItem(this)
-        val modifiableItem: ItemStack
-        var extraItem: ItemStack? = null
+        val inventoryPosition: InventoryPos? = controller.getPositionOfItem(this)
+        var modifiableItem: ItemStack
+        var extraItem: ItemStack? = null // is a reference for the extra stored item in the pagination items if existing
 
         if (inventoryPosition != null) {
             val slot: Int = MathUtils.positionToSlot(inventoryPosition, controller.getColumns())
@@ -49,57 +58,51 @@ class InteractiveItem(
         if (controller.pagination != null)
             extraItem = controller.pagination!!.items.values().find { it.itemId == this.itemId }?.item
 
-        val newValue: Any = values[0]
+        val newValue = values[0]
 
         when (modification) {
             Modification.TYPE -> {
                 if (newValue !is Material) throw UnsupportedOperationException("'newValue' is not a Material!")
-                modifiableItem.type = newValue
 
-                extraItem?.type = newValue
+                modifiableItem = modifiableItem.withType(newValue)
+                this.item = modifiableItem
+
+                extraItem = extraItem?.withType(newValue)
+                if (extraItem != null) controller.pagination?.items?.values()?.find { it.itemId == this.itemId }?.item = extraItem
             }
 
             Modification.DISPLAY_NAME -> {
                 if (newValue !is Component) throw UnsupportedOperationException("'newValue' is not a Component!")
-                modifiableItem.editMeta { itemMeta: ItemMeta -> itemMeta.displayName(newValue) }
 
+                modifiableItem.editMeta { itemMeta: ItemMeta -> itemMeta.displayName(newValue) }
                 extraItem?.editMeta { itemMeta: ItemMeta -> itemMeta.displayName(newValue) }
             }
 
             Modification.LORE -> {
-                if (newValue !is List<*>) {
-                    throw UnsupportedOperationException("'newValue' is not a List!")
-                }
+                if (newValue !is MutableList<*>) throw UnsupportedOperationException("'newValue' is not a List!")
 
-                modifiableItem.editMeta { itemMeta ->
-                    val lore = newValue.toMutableList()
-                    itemMeta.lore(lore as MutableList<Component>)
-                }
-
-                extraItem?.editMeta { itemMeta ->
-                    val lore = newValue.toMutableList()
-                    itemMeta.lore(lore as MutableList<Component>)
-                }
+                modifiableItem.editMeta { it.lore(newValue as MutableList<Component>) }
+                extraItem?.editMeta { it.lore(newValue as MutableList<Component>) }
             }
 
             Modification.AMOUNT -> {
                 if (newValue !is Int) throw UnsupportedOperationException("'newValue' is not an Integer!")
-                modifiableItem.amount = newValue
 
+                modifiableItem.amount = newValue
                 if (extraItem != null) extraItem.amount = newValue
             }
 
             Modification.INCREMENT -> {
                 if (newValue !is Int) throw UnsupportedOperationException("'newValue' is not an Integer!")
-                modifiableItem.amount += newValue
 
+                modifiableItem.amount += newValue
                 if (extraItem != null) extraItem.amount += newValue
             }
 
             Modification.ENCHANTMENTS -> {
                 if (newValue !is ItemEnchantment) throw UnsupportedOperationException("'newValue' is not an ItemEnchantment!")
-                newValue.performAction(modifiableItem)
 
+                newValue.performAction(modifiableItem)
                 if (extraItem != null) newValue.performAction(extraItem)
             }
 
@@ -128,46 +131,36 @@ class InteractiveItem(
     }
 
     companion object {
+
         fun placeholder(material: Material): InteractiveItem {
             val itemId = UUID.randomUUID().toString().split("-")[0]
             return InteractiveItem(makeItemStack(material, itemId)) { _, _, _ -> }
         }
 
         fun nextPage(item: ItemStack, pagination: InventoryPagination): InteractiveItem {
-            return of(item) { _: InventoryPosition, _: InteractiveItem, _: InventoryClickEvent? -> pagination.toNextPage() }
+            return of(item) { _: InventoryPos, _: InteractiveItem, _: InventoryClickEvent? -> pagination.toNextPage() }
         }
 
         fun previousPage(item: ItemStack, pagination: InventoryPagination): InteractiveItem {
-            return of(item) { _: InventoryPosition, _: InteractiveItem, _: InventoryClickEvent -> pagination.toPreviousPage() }
+            return of(item) { _: InventoryPos, _: InteractiveItem, _: InventoryClickEvent -> pagination.toPreviousPage() }
         }
 
         fun navigator(item: ItemStack, inventoryKey: String): InteractiveItem {
-            return of(item) { _: InventoryPosition, _: InteractiveItem, event: InventoryClickEvent ->
+            return of(item) { _: InventoryPos, _: InteractiveItem, event: InventoryClickEvent ->
                 val holder: Player = event.whoClicked as Player
-
-                val elytraInventory =
-                    SpaceInventoryProvider.api.inventoryHandler.getInventory(holder, inventoryKey)
-                        ?: throw NullPointerException("No inventory with key $inventoryKey found!")
+                val inventory = getInventory(holder, inventoryKey) ?: return@of
 
                 holder.closeInventory()
-                elytraInventory.open(holder)
+                inventory.open(holder)
             }
         }
-
 
         fun of(item: ItemStack): InteractiveItem {
-            return InteractiveItem(item) { _: InventoryPosition, _: InteractiveItem, _: InventoryClickEvent -> }
+            return InteractiveItem(item) { _: InventoryPos, _: InteractiveItem, _: InventoryClickEvent -> }
         }
 
-        fun of(item: ItemStack, action: TriConsumer<InventoryPosition, InteractiveItem, InventoryClickEvent>): InteractiveItem {
+        fun of(item: ItemStack, action: ((InventoryPos, InteractiveItem, InventoryClickEvent) -> Unit)): InteractiveItem {
             return InteractiveItem(item, action)
-        }
-
-        fun of(item: ItemStack, command: String): InteractiveItem {
-            return InteractiveItem(item) { _, _, event ->
-                val player: Player = event.whoClicked as Player
-                player.performCommand(command)
-            }
         }
 
         private fun makeItemStack(material: Material, itemId: String): ItemStack {

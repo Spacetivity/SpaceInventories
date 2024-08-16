@@ -1,6 +1,6 @@
 package world.neptuns.inventory.api
 
-class SpaceInventoryProvider {
+class NeptunInventoryProvider {
 
     companion object {
         fun register(api: InventoryApi) {

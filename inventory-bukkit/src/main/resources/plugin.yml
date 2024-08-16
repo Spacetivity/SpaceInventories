@@ -1,7 +1,6 @@
-name: SpaceInventories
-version: '1.0-RELEASE'
-main: world.neptuns.inventory.bukkit.SpaceInventoryBukkit
-api-version: "1.20"
+name: neptun-inventory
+version: '1.0-SNAPSHOT'
+main: world.neptuns.inventory.bukkit.NeptunInventoryBukkit
+api-version: "1.21"
 authors:
-  - FallenBreak
   - TGamings

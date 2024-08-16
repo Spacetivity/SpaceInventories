@@ -1,10 +1,9 @@
 package world.neptuns.inventory.api.inventory
 
-import world.neptuns.inventory.api.annotation.InventoryProperties
 import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import world.neptuns.inventory.api.item.InteractiveItem
-import world.neptuns.inventory.api.item.InventoryPosition
+import world.neptuns.inventory.api.item.InventoryPos
 import world.neptuns.inventory.api.pagination.InventoryPagination
 
 interface InventoryController {
@@ -15,7 +14,7 @@ interface InventoryController {
     val inventorySlotCount: Int
     var isCloseable: Boolean
 
-    val contents: Map<InventoryPosition, InteractiveItem?>
+    val contents: Map<InventoryPos, InteractiveItem?>
     val pagination: InventoryPagination?
     var rawInventory: Inventory?
 
@@ -29,24 +28,24 @@ interface InventoryController {
 
     fun constructEmptyContent()
 
-    fun placeholder(pos: InventoryPosition, type: Material)
+    fun placeholder(pos: InventoryPos, type: Material)
     fun placeholder(row: Int, column: Int, type: Material)
 
-    fun setItem(pos: InventoryPosition, item: InteractiveItem)
+    fun setItem(pos: InventoryPos, item: InteractiveItem)
     fun setItem(row: Int, column: Int, item: InteractiveItem)
     fun addItem(item: InteractiveItem)
     fun addItemToRandomPosition(item: InteractiveItem)
     fun removeItem(name: String)
     fun removeItem(type: Material)
 
-    fun fill(fillType: FillType, item: InteractiveItem, vararg positions: InventoryPosition)
-    fun clearPosition(pos: InventoryPosition)
+    fun fill(fillType: FillType, item: InteractiveItem, vararg positions: InventoryPos)
+    fun clearPosition(pos: InventoryPos)
 
-    fun isPositionTaken(pos: InventoryPosition): Boolean
-    fun getPositionOfItem(item: InteractiveItem): InventoryPosition?
-    fun getFirstEmptyPosition(): InventoryPosition?
+    fun isPositionTaken(pos: InventoryPos): Boolean
+    fun getPositionOfItem(item: InteractiveItem): InventoryPos?
+    fun getFirstEmptyPosition(): InventoryPos?
 
-    fun getItem(pos: InventoryPosition): InteractiveItem?
+    fun getItem(pos: InventoryPos): InteractiveItem?
     fun getItem(row: Int, column: Int): InteractiveItem?
     fun findFirstItemWithType(type: Material): InteractiveItem?
 
