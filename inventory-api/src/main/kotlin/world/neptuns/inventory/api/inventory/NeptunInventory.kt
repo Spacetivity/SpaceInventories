@@ -3,7 +3,7 @@ package world.neptuns.inventory.api.inventory
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 
-interface SpaceInventory {
+interface NeptunInventory {
 
     val provider: InventoryProvider
 

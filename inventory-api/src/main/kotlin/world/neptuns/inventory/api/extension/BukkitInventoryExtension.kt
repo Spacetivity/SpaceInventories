@@ -1,36 +1,35 @@
 package world.neptuns.inventory.api.extension
 
 import net.kyori.adventure.text.Component
-import org.bukkit.Server
 import org.bukkit.entity.Player
-import world.neptuns.inventory.api.SpaceInventoryProvider
+import world.neptuns.inventory.api.NeptunInventoryProvider
 import world.neptuns.inventory.api.inventory.InventoryProvider
-import world.neptuns.inventory.api.inventory.SpaceInventory
+import world.neptuns.inventory.api.inventory.NeptunInventory
 
-fun Server.openStaticInventory(holder: Player, title: Component, provider: InventoryProvider) {
-    SpaceInventoryProvider.api.inventoryHandler.openStaticInventory(holder, title, provider, true)
+fun openStaticInventory(holder: Player, title: Component, provider: InventoryProvider) {
+    NeptunInventoryProvider.api.inventoryHandler.openStaticInventory(holder, title, provider, true)
 }
 
-fun Server.openInventory(holder: Player, key: String) {
-    SpaceInventoryProvider.api.inventoryHandler.getInventory(holder, key)?.open(holder)
+fun openInventory(holder: Player, key: String) {
+    NeptunInventoryProvider.api.inventoryHandler.getInventory(holder, key)?.open(holder)
 }
 
-fun Server.getInventory(holder: Player, key: String): SpaceInventory? {
-    return SpaceInventoryProvider.api.inventoryHandler.getInventory(holder, key)
+fun getInventory(holder: Player, key: String): NeptunInventory? {
+    return NeptunInventoryProvider.api.inventoryHandler.getInventory(holder, key)
 }
 
-fun Server.cacheInventory(holder: Player, title: Component, provider: InventoryProvider) {
-    SpaceInventoryProvider.api.inventoryHandler.cacheInventory(holder, title, provider)
+fun cacheInventory(holder: Player, title: Component, provider: InventoryProvider) {
+    NeptunInventoryProvider.api.inventoryHandler.cacheInventory(holder, title, provider)
 }
 
-fun Server.removeCachedInventory(holder: Player, inventory: SpaceInventory) {
-    SpaceInventoryProvider.api.inventoryHandler.removeCachedInventory(holder, inventory)
+fun removeCachedInventory(holder: Player, inventory: NeptunInventory) {
+    NeptunInventoryProvider.api.inventoryHandler.removeCachedInventory(holder, inventory)
 }
 
-fun Server.clearCachedInventories(holder: Player) {
-    SpaceInventoryProvider.api.inventoryHandler.clearCachedInventories(holder)
+fun clearCachedInventories(holder: Player) {
+    NeptunInventoryProvider.api.inventoryHandler.clearCachedInventories(holder)
 }
 
-fun Server.updateCachedInventory(holder: Player, key: String) {
-    SpaceInventoryProvider.api.inventoryHandler.updateCachedInventory(holder, key)
+fun updateCachedInventory(holder: Player, key: String) {
+    NeptunInventoryProvider.api.inventoryHandler.updateCachedInventory(holder, key)
 }

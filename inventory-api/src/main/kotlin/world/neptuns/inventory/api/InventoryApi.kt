@@ -1,10 +1,9 @@
 package world.neptuns.inventory.api
 
 import net.kyori.adventure.text.Component
-import world.neptuns.inventory.api.inventory.InventoryHandler
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.util.function.Consumer
+import world.neptuns.inventory.api.inventory.InventoryHandler
 
 interface InventoryApi {
 
@@ -14,8 +13,8 @@ interface InventoryApi {
         holder: Player,
         title: Component,
         displayItem: ItemStack,
-        onAccept: Consumer<ItemStack>,
-        onDeny: Consumer<ItemStack>
+        onAccept: ((ItemStack) -> Unit),
+        onDeny: ((ItemStack) -> Unit)
     )
 
 }

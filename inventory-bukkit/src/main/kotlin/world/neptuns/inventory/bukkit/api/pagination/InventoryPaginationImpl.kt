@@ -2,15 +2,17 @@ package world.neptuns.inventory.bukkit.api.pagination
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
+import org.bukkit.entity.Player
 import world.neptuns.inventory.api.inventory.InventoryController
 import world.neptuns.inventory.api.item.InteractiveItem
-import world.neptuns.inventory.api.item.InventoryPosition
+import world.neptuns.inventory.api.item.InventoryPos
 import world.neptuns.inventory.api.pagination.InventoryPagination
+import world.neptuns.inventory.bukkit.utils.SoundUtils
 
 
 class InventoryPaginationImpl(private val controller: InventoryController) : InventoryPagination {
 
-    override val positions: MutableList<InventoryPosition> = mutableListOf()
+    override val positions: MutableList<InventoryPos> = mutableListOf()
     override val items: Multimap<Int, InteractiveItem> = ArrayListMultimap.create()
 
     private var currentPageId: Int = 0
@@ -68,7 +70,7 @@ class InventoryPaginationImpl(private val controller: InventoryController) : Inv
 
         for (row in startRow until numRows.coerceAtMost(endRow + 1)) {
             for (column in startColumn until numColumns.coerceAtMost(endColumn + 1)) {
-                val position = InventoryPosition.of(row, column)
+                val position = InventoryPos.of(row, column)
                 positions.add(position)
             }
         }
@@ -109,5 +111,10 @@ class InventoryPaginationImpl(private val controller: InventoryController) : Inv
         }
 
         controller.updateRawInventory()
+
+        if (controller.properties.playSoundOnPageSwitch) {
+            val holder = controller.rawInventory?.holder ?: return
+            SoundUtils.playSwitchPageSound(holder as Player)
+        }
     }
 }

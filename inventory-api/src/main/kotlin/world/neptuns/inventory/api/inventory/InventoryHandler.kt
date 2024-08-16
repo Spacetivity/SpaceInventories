@@ -6,7 +6,7 @@ import org.bukkit.entity.Player
 
 interface InventoryHandler {
 
-    val inventories: Multimap<Player, SpaceInventory>
+    val inventories: Multimap<Player, NeptunInventory>
 
     fun openStaticInventory(holder: Player, title: Component, provider: InventoryProvider, forceSyncOpening: Boolean)
 
@@ -17,14 +17,14 @@ interface InventoryHandler {
         title: Component,
         provider: InventoryProvider,
         staticInventory: Boolean
-    ): SpaceInventory?
+    ): NeptunInventory?
 
     fun updateCachedInventory(holder: Player, inventoryId: String)
 
     fun clearCachedInventories(holder: Player)
 
-    fun removeCachedInventory(holder: Player, inventory: SpaceInventory)
+    fun removeCachedInventory(holder: Player, inventory: NeptunInventory)
 
-    fun getInventory(holder: Player, name: String): SpaceInventory?
+    fun getInventory(holder: Player, name: String): NeptunInventory?
 
 }
