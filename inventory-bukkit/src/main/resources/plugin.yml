@@ -1,6 +1,8 @@
-name: neptun-inventory
+name: SpaceInventories
 version: '1.0-SNAPSHOT'
-main: world.neptuns.inventory.bukkit.NeptunInventoryBukkit
-api-version: "1.21"
+main: net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
+api-version: "1.21.3"
 authors:
   - TGamings
+depend:
+  - SpaceDependencies

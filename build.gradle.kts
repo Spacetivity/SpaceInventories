@@ -5,12 +5,13 @@ plugins {
 }
 
 allprojects {
-    group = "world.neptuns.inventory"
+    group = "net.spacetivity.inventory"
     version = "1.0-SNAPSHOT"
 
     repositories {
         maven {
-            url = uri("https://nexus.neptuns.world/repository/maven-public/")
+            isAllowInsecureProtocol = true
+            url = uri("http://37.114.42.133:8081/repository/maven-public/")
             credentials {
                 username = property("nexusUsername") as String
                 password = property("nexusPassword") as String
@@ -25,7 +26,7 @@ allprojects {
     afterEvaluate {
         dependencies {
             compileOnly(libs.gson)
-            compileOnly(libs.paper.api)
+            compileOnly(libs.api.paper)
         }
     }
 }
