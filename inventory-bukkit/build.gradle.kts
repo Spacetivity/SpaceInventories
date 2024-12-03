@@ -7,13 +7,6 @@ plugins {
 
 dependencies {
     implementation(project(":inventory-api"))
-
-    testImplementation(libs.gson)
-    testImplementation(libs.paper.api)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 tasks.shadowJar {

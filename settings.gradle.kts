@@ -1,3 +1,3 @@
-rootProject.name = "neptun-inventory"
+rootProject.name = "SpaceInventories"
 include("inventory-api")
 include("inventory-bukkit")

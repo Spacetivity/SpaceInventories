@@ -6,10 +6,6 @@ dependencies {
 
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
 kotlin {
     jvmToolchain(libs.versions.java.get().toInt())
 }
@@ -30,11 +26,12 @@ publishing {
     repositories {
         maven {
             val repositoryUrl = if (project.version.toString().endsWith("SNAPSHOT")) {
-                "https://nexus.neptuns.world/repository/maven-snapshots/"
+                "http://37.114.42.133:8081/repository/maven-snapshots/"
             } else {
-                "https://nexus.neptuns.world/repository/maven-releases/"
+                "http://37.114.42.133:8081/repository/maven-releases/"
             }
 
+            isAllowInsecureProtocol = true
             url = uri(repositoryUrl)
 
             credentials {
