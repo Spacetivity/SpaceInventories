@@ -1,8 +1,8 @@
 [versions]
 java = "21"
 
-gson = "2.11.0"
-api-paper = "1.21.3-R0.1-SNAPSHOT"
+gson = "2.12.1"
+api-paper = "1.21.4-R0.1-SNAPSHOT"
 
 [libraries]
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }

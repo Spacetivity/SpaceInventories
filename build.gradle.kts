@@ -10,12 +10,8 @@ allprojects {
 
     repositories {
         maven {
-            isAllowInsecureProtocol = true
-            url = uri("http://37.114.42.133:8081/repository/maven-public/")
-            credentials {
-                username = property("nexusUsername") as String
-                password = property("nexusPassword") as String
-            }
+            name = "papermc"
+            url = uri("https://repo.papermc.io/repository/maven-public/")
         }
         mavenCentral()
     }
