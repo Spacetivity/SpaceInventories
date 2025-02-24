@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    `maven-publish`
 }
 
 dependencies {
@@ -16,28 +17,19 @@ task("sourcesJar", type = Jar::class) {
 }
 
 publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-            artifact(tasks["sourcesJar"])
-        }
-    }
-
     repositories {
         maven {
-            val repositoryUrl = if (project.version.toString().endsWith("SNAPSHOT")) {
-                "http://37.114.42.133:8081/repository/maven-snapshots/"
-            } else {
-                "http://37.114.42.133:8081/repository/maven-releases/"
-            }
-
-            isAllowInsecureProtocol = true
-            url = uri(repositoryUrl)
-
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/Spacetivity/SpaceInventories")
             credentials {
-                username = property("nexusUsername") as String
-                password = property("nexusPassword") as String
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
             }
+        }
+    }
+    publications {
+        register<MavenPublication>("gpr") {
+            from(components["java"])
         }
     }
 }
