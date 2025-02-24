@@ -1,7 +1,7 @@
 name: SpaceInventories
 version: '1.0-SNAPSHOT'
 main: net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
-api-version: "1.21.3"
+api-version: "1.21.4"
 authors:
   - TGamings
 depend:
