@@ -3,10 +3,14 @@ package net.spacetivity.inventory.bukkit.api.inventory
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import net.kyori.adventure.text.Component
+import net.spacetivity.inventory.api.inventory.InventoryHandler
+import net.spacetivity.inventory.api.inventory.InventoryProperties
+import net.spacetivity.inventory.api.inventory.InventoryProvider
+import net.spacetivity.inventory.api.inventory.SpaceInventory
+import net.spacetivity.inventory.api.utils.MathUtils
+import net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import net.spacetivity.inventory.api.inventory.*
-import net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
 
 class InventoryHandlerImpl : InventoryHandler {
 
@@ -31,7 +35,10 @@ class InventoryHandlerImpl : InventoryHandler {
         val rawInventory = Bukkit.createInventory(holder, controller.getRows() * controller.getColumns(), title)
 
         controller.rawInventory = rawInventory
-        controller.constructEmptyContent()
+
+        for (i in 0 until controller.inventorySlotCount) {
+            controller.contents[MathUtils.slotToPosition(i, controller.getColumns())] = null
+        }
 
         provider.init(holder, controller)
 

@@ -132,9 +132,9 @@ class InteractiveItem(
 
     companion object {
 
-        fun placeholder(material: Material): InteractiveItem {
+        fun placeholder(type: Material): InteractiveItem {
             val itemId = UUID.randomUUID().toString().split("-")[0]
-            return InteractiveItem(makeItemStack(material, itemId)) { _, _, _ -> }
+            return InteractiveItem(makeItemStack(type, itemId)) { _, _, _ -> }
         }
 
         fun nextPage(item: ItemStack, pagination: InventoryPagination): InteractiveItem {
@@ -163,8 +163,8 @@ class InteractiveItem(
             return InteractiveItem(item, action)
         }
 
-        private fun makeItemStack(material: Material, itemId: String): ItemStack {
-            val itemStack = ItemStack(material)
+        private fun makeItemStack(type: Material, itemId: String): ItemStack {
+            val itemStack = ItemStack(type)
             val itemMeta: ItemMeta = itemStack.itemMeta
             itemMeta.displayName(Component.text(" "))
 

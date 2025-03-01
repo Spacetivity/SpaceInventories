@@ -40,12 +40,6 @@ class InventoryControllerImpl(override val provider: InventoryProvider) : Invent
         return if (overriddenColumns == 0) this.properties.columns else overriddenColumns
     }
 
-    override fun constructEmptyContent() {
-        for (i in 0 until inventorySlotCount) {
-            contents[MathUtils.slotToPosition(i, getColumns())] = null
-        }
-    }
-
     override fun placeholder(pos: InventoryPos, type: Material) {
         setItem(pos, InteractiveItem.placeholder(type))
     }

@@ -7,7 +7,7 @@ interface SpaceInventory {
 
     val provider: InventoryProvider
 
-    val controller: net.spacetivity.inventory.api.inventory.InventoryController
+    val controller: InventoryController
 
     val name: String
 
