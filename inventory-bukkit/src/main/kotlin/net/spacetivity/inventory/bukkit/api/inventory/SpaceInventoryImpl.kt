@@ -1,16 +1,16 @@
 package net.spacetivity.inventory.bukkit.api.inventory
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.spacetivity.inventory.api.inventory.InventoryProvider
+import net.spacetivity.inventory.api.inventory.SpaceInventory
+import net.spacetivity.inventory.api.pagination.InventoryPagination
+import net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
+import net.spacetivity.inventory.bukkit.utils.SoundUtils
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.metadata.FixedMetadataValue
-import net.spacetivity.inventory.api.inventory.InventoryProvider
-import net.spacetivity.inventory.api.inventory.SpaceInventory
-import net.spacetivity.inventory.api.pagination.InventoryPagination
-import net.spacetivity.inventory.bukkit.utils.SoundUtils
-import net.spacetivity.inventory.bukkit.SpaceInventoryBukkit
 
 class SpaceInventoryImpl(
     override val provider: InventoryProvider,
@@ -53,12 +53,9 @@ class SpaceInventoryImpl(
     private fun validateOpening(holder: Player): Boolean {
         val permission = controller.properties.permission
 
-        if (!permission.equals("", ignoreCase = true) && !holder.hasPermission(permission)) {
+        if (!permission.equals("", true) && !holder.hasPermission(permission)) {
             holder.sendMessage(
-                Component.text(
-                    "You don't have the permission to open this inventory!",
-                    NamedTextColor.RED
-                )
+                MiniMessage.miniMessage().serialize(Component.text(SpaceInventoryBukkit.instance.messageFile.noPermissionMessage))
             )
             return true
         }
@@ -66,7 +63,7 @@ class SpaceInventoryImpl(
         val rawInventory: Inventory = controller.rawInventory!!
         holder.openInventory(rawInventory)
         holder.setMetadata("open-inventory", FixedMetadataValue(SpaceInventoryBukkit.instance, this.name))
-        if (this.controller.properties.playSoundOnClose) SoundUtils.playSound(holder, SoundUtils.OPEN)
+        if (this.controller.properties.playSoundOnOpen) SoundUtils.playOpenSound(holder)
 
         return false
     }

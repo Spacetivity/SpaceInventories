@@ -41,6 +41,7 @@ class InventoryPlayerListener(private val plugin: SpaceInventoryBukkit) : Listen
         val currentItem: InteractiveItem = inventory.controller.getItem(position) ?: return
         currentItem.runAction(position, currentItem, event)
 
+        if (SpaceInventoryBukkit.instance.soundConfigFile.onClick != null)
         if (inventory.controller.properties.playSoundOnClick) SoundUtils.playClickSound(player)
     }
 
@@ -58,7 +59,7 @@ class InventoryPlayerListener(private val plugin: SpaceInventoryBukkit) : Listen
             Bukkit.getScheduler().runTask(this.plugin, Runnable { inventory.open(player) })
         } else {
             player.removeMetadata("open-inventory", this.plugin)
-            if (inventory.controller.properties.playSoundOnClose) SoundUtils.playSound(player, SoundUtils.CLOSE)
+            if (inventory.controller.properties.playSoundOnClose) SoundUtils.playCloseSound(player)
             if (inventory.isStaticInventory) inventoryHandler.removeCachedInventory(player, inventory)
         }
     }
