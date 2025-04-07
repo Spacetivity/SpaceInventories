@@ -21,10 +21,10 @@ publishing {
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/Spacetivity/SpaceInventories")
-//            credentials {
-//                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-//                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-//            }
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
         }
     }
     publications {
